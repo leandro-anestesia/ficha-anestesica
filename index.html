@@ -113,6 +113,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   @page{size:A4 portrait;margin:8mm 10mm 8mm 10mm}
   html,body{background:#fff!important;font-size:9px;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   .topbar,.no-print{display:none!important}
+  .hide-print{display:none!important}
   .container{max-width:100%;margin:0;padding:0}
   .print-header{display:block!important;padding:4px 0 7px;margin-bottom:6px;border-bottom:2px solid #b8963e}
   .print-header h2{font-size:13px;font-weight:700;color:#1a1a1a;letter-spacing:.04em}
@@ -173,7 +174,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
 .modal-anest-item .item-name{font-weight:700;color:#1a1a1a}
 .modal-anest-item .item-crm{color:#888}
 /* Carimbo na impressão */
-.stamp-box{border:1.5px solid #333;border-radius:4px;padding:8px 12px;display:inline-block;min-width:160px;font-size:10px;line-height:1.6;text-align:center}
+.stamp-box{border:none;padding:8px 12px;display:inline-block;min-width:160px;font-size:10px;line-height:1.6;text-align:center}
 .stamp-box .stamp-name{font-weight:700;font-size:11px;color:#1a1a1a}
 .stamp-box .stamp-spec{font-style:italic;color:#444}
 .stamp-box .stamp-crm{color:#333;letter-spacing:.04em}
@@ -465,7 +466,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   </div><!-- fim pagina2 -->
 
   <div class="no-print" style="text-align:right;margin-top:4px">
-    <button class="btn btn-orange" onclick="window.print()">Imprimir / Salvar PDF</button>
+    <button class="btn btn-orange" onclick="preparePrint()">Imprimir / Salvar PDF</button>
   </div>
 
 
@@ -531,20 +532,33 @@ function checkOutroCir(){
   document.getElementById('cir-outro-field').style.display=document.getElementById('cirurgiao').value==='outro_cir'?'flex':'none';
 }
 // ── Anestesiologistas cadastrados ──
-let anestDB = JSON.parse(localStorage.getItem('hipnos_anest') || '[]');
+const HIPNOS_DEFAULT = [
+  {id:'amanda',    name:'Amanda Nunes de Oliveira',              crm:'CRM-SP 188953', sig:''},
+  {id:'andre',     name:'André Guimaraes Moraes',                crm:'CRM-SP 91385',  sig:''},
+  {id:'augusto',   name:'Augusto Alberto Iglesias Ferreira Filho',crm:'CRM-SP 190986', sig:''},
+  {id:'diogo',     name:'Diogo Santos Blunck',                   crm:'CRM-SP 166979', sig:''},
+  {id:'heitor',    name:'Heitor Gonzales Julio',                 crm:'CRM-SP 144089', sig:''},
+  {id:'henrique',  name:'Henrique Figueiredo Prado',             crm:'CRM-SP 218646', sig:''},
+  {id:'jefferson', name:'Jefferson Zorzi Costa',                 crm:'CRM-SP 144679', sig:''},
+  {id:'juliana',   name:'Juliana Cruzera',                       crm:'CRM-SP 217398', sig:''},
+  {id:'leandro',   name:'Leandro Marques Correa',                crm:'CRM-SP 111794', sig:''},
+  {id:'luciano',   name:'Luciano Dias Azevedo',                  crm:'CRM-SP 104119', sig:''},
+  {id:'mariana',   name:'Mariana Marques',                       crm:'CRM-SP 122407', sig:''},
+  {id:'marina',    name:'Marina May Chittenden Bandeira Gaspari',crm:'CRM-SP 140782', sig:''},
+  {id:'murilo',    name:'Murilo Baruki',                         crm:'CRM-SP 230852', sig:''},
+  {id:'otavio',    name:'Otavio Estevam Ferreira',               crm:'CRM-SP 121177', sig:''},
+  {id:'otavio2',   name:'Otávio Vilela de Figueiredo',           crm:'CRM-SP 172086', sig:''},
+  {id:'rodrigo',   name:'Rodrigo Seiji Taniguchi',               crm:'CRM-SP 130207', sig:''},
+  {id:'rogerio',   name:'Rogerio De Paula Couto Schmitt',        crm:'CRM-SP 89148',  sig:''},
+  {id:'stenio',    name:'Stenio Costa Almeida',                  crm:'CRM-SP 173597', sig:''},
+  {id:'vinicius',  name:'Vinicius Augusto Salvador Melhado',     crm:'CRM-SP 177609', sig:''},
+];
 
-// Poblar lista padrão se vazio
-if(!anestDB.length){
-  anestDB = [
-    {id:'marina', name:'Dra. Marina',    crm:'CRM-SP 000001', sig:''},
-    {id:'otavio', name:'Dr. Otavio',     crm:'CRM-SP 000002', sig:''},
-    {id:'rogerio',name:'Dr. Rogerio',    crm:'CRM-SP 000003', sig:''},
-    {id:'stenio', name:'Dr. Stenio',     crm:'CRM-SP 000004', sig:''},
-    {id:'diogo',  name:'Dr. Diogo',      crm:'CRM-SP 000005', sig:''},
-    {id:'leandro',name:'Dr. Leandro',    crm:'CRM-SP 000006', sig:''},
-  ];
-  saveAnestDB();
-}
+// Forçar reset se a lista ainda tem os dados antigos (ids sem CRM real)
+const _stored = JSON.parse(localStorage.getItem('hipnos_anest') || '[]');
+const _isOld = _stored.length && _stored.some(x=>x.crm&&x.crm.includes('000'));
+let anestDB = (_isOld || !_stored.length) ? HIPNOS_DEFAULT.map(x=>({...x})) : _stored;
+if(_isOld || !_stored.length){ localStorage.setItem('hipnos_anest', JSON.stringify(anestDB)); }
 
 function saveAnestDB(){localStorage.setItem('hipnos_anest',JSON.stringify(anestDB));}
 
@@ -777,6 +791,45 @@ function limpar(){
 
 window.addEventListener('beforeprint',()=>document.getElementById('assin-section').style.display='block');
 window.addEventListener('afterprint',()=>document.getElementById('assin-section').style.display='none');
+
+// ── Imprimir apenas medicações usadas ──
+function preparePrint(){
+  // Para cada med-card predefinido, ocultar se dose vazia
+  document.querySelectorAll('.med-grid .med-card').forEach(card=>{
+    const inputs = card.querySelectorAll('input[type="number"], input[type="text"]');
+    let hasValue = false;
+    inputs.forEach(inp=>{ if(inp.value && inp.value.trim()!=='') hasValue=true; });
+    // Verificar também campos de time (horário preenchido = usado)
+    card.querySelectorAll('input[type="time"]').forEach(t=>{ if(t.value) hasValue=true; });
+    if(!hasValue){
+      card.setAttribute('data-hide-print','1');
+      card.classList.add('hide-print');
+    } else {
+      card.removeAttribute('data-hide-print');
+      card.classList.remove('hide-print');
+    }
+  });
+  // Ocultar seção "Outras medicações" se vazia
+  const extraMeds = document.getElementById('extra-meds');
+  if(extraMeds){
+    const extraLabel = extraMeds.previousElementSibling;
+    if(!extraMeds.children.length){
+      extraMeds.classList.add('hide-print');
+      if(extraLabel) extraLabel.classList.add('hide-print');
+    } else {
+      extraMeds.classList.remove('hide-print');
+      if(extraLabel) extraLabel.classList.remove('hide-print');
+    }
+  }
+  window.print();
+  // Restaurar após impressão
+  setTimeout(()=>{
+    document.querySelectorAll('.hide-print').forEach(el=>{
+      el.classList.remove('hide-print');
+      el.removeAttribute('data-hide-print');
+    });
+  }, 1500);
+}
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
