@@ -158,6 +158,27 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   /* Quebra de página */
   #pagina2{break-before:page;page-break-before:always}
 }
+
+/* ── Cadastro de anestesiologistas ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:14px;padding:22px 24px;width:min(92vw,420px);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-box h3{font-size:15px;font-weight:700;color:#1a1a1a;margin:0 0 16px}
+.modal-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.modal-anest-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;transition:background .15s}
+.modal-anest-item:hover{background:#f8f4ed}
+.modal-anest-item.selected{border-color:#b8963e;background:#f8f4ed}
+.modal-anest-item .item-sig{width:60px;height:28px;object-fit:contain;border:1px dashed #d1d5db;border-radius:4px;background:#f9fafb}
+.modal-anest-item .item-info{flex:1;font-size:12px}
+.modal-anest-item .item-name{font-weight:700;color:#1a1a1a}
+.modal-anest-item .item-crm{color:#888}
+/* Carimbo na impressão */
+.stamp-box{border:1.5px solid #333;border-radius:4px;padding:8px 12px;display:inline-block;min-width:160px;font-size:10px;line-height:1.6;text-align:center}
+.stamp-box .stamp-name{font-weight:700;font-size:11px;color:#1a1a1a}
+.stamp-box .stamp-spec{font-style:italic;color:#444}
+.stamp-box .stamp-crm{color:#333;letter-spacing:.04em}
+/* Assinatura impressa */
+.sig-img{max-height:48px;max-width:180px;object-fit:contain;display:block;margin:0 auto 3px}
 </style>
 </head>
 <body>
@@ -270,16 +291,12 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
       </div>
       <div class="field">
         <label>Anestesiologista</label>
-        <select id="anestesio" onchange="checkOutroAnest();updateSub()">
-          <option value="">Selecione...</option>
-          <option>Dra. Marina</option>
-          <option>Dr. Otavio</option>
-          <option>Dr. Rogerio</option>
-          <option>Dr. Stenio</option>
-          <option>Dr. Diogo</option>
-          <option>Dr. Leandro</option>
-          <option value="outro_anest">Outro...</option>
-        </select>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="anestesio" onchange="checkOutroAnest();updateSub();loadAnestSignature()" style="flex:1">
+            <option value="">Selecione...</option>
+          </select>
+          <button type="button" class="no-print" onclick="openAnestModal()" title="Gerenciar anestesiologistas" style="padding:6px 9px;border:1px solid #d4b483;border-radius:6px;background:#f8f4ed;color:#8a6d28;font-size:14px;cursor:pointer;flex-shrink:0">⚙</button>
+        </div>
       </div>
       <div class="field" id="anest-outro-field" style="display:none"><label>Nome</label><input type="text" id="anestesio-outro" placeholder="Nome completo" oninput="updateSub()"></div>
       <div class="field"><label>Data do procedimento</label><input type="date" id="data-proc" onchange="updateSub()"></div>
@@ -425,9 +442,23 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
 
   <!-- Assinatura -->
   <div class="section" style="display:none" id="assin-section">
-    <div style="display:flex;justify-content:space-between;padding:60px 0 4px">
-      <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:3px"></div><span style="font-size:11px;color:#666">Assinatura do Anestesiologista</span></div>
-      <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:3px"></div><span style="font-size:11px;color:#666">CRM / Carimbo</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;padding:50px 0 4px;gap:16px">
+      <!-- Assinatura -->
+      <div style="text-align:center;width:48%" id="sig-col">
+        <div id="sig-img-wrap" style="min-height:48px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px">
+          <img id="sig-preview-print" class="sig-img" src="" alt="" style="display:none">
+        </div>
+        <div style="border-top:1px solid #333;margin-bottom:3px"></div>
+        <span style="font-size:11px;color:#666">Assinatura do Anestesiologista</span>
+      </div>
+      <!-- Carimbo -->
+      <div style="text-align:center;width:44%" id="stamp-col">
+        <div id="stamp-preview" style="min-height:48px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:4px">
+          <!-- preenchido por JS -->
+        </div>
+        <div style="border-top:1px solid #333;margin-bottom:3px"></div>
+        <span style="font-size:11px;color:#666">CRM / Carimbo</span>
+      </div>
     </div>
   </div>
 
@@ -436,6 +467,33 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   <div class="no-print" style="text-align:right;margin-top:4px">
     <button class="btn btn-orange" onclick="window.print()">Imprimir / Salvar PDF</button>
   </div>
+
+
+<!-- Modal Anestesiologistas -->
+<div class="modal-overlay no-print" id="anest-modal">
+  <div class="modal-box">
+    <h3>👤 Anestesiologistas</h3>
+    <div class="modal-list" id="anest-modal-list"></div>
+    <div style="border-top:1px solid #e5e7eb;padding-top:14px">
+      <div style="font-size:12px;font-weight:700;color:#8a6d28;margin-bottom:10px">+ Cadastrar novo</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="field"><label>Nome completo</label><input type="text" id="new-anest-name" placeholder="Ex: Dr. João Silva"></div>
+        <div class="field"><label>CRM</label><input type="text" id="new-anest-crm" placeholder="Ex: CRM-SP 123456"></div>
+        <div class="field">
+          <label>Foto da assinatura</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="file" id="new-anest-sig" accept="image/*" onchange="previewNewSig(this)" style="font-size:12px;flex:1">
+          </div>
+          <img id="new-sig-preview" src="" alt="" style="display:none;max-height:40px;max-width:160px;margin-top:6px;border:1px dashed #d1d5db;border-radius:4px;padding:2px;object-fit:contain">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-gold btn-sm" onclick="saveNewAnest()" style="flex:1">Salvar</button>
+          <button class="btn btn-gray btn-sm" onclick="closeAnestModal()" style="flex:1">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 </div><!-- fim container -->
 
@@ -472,8 +530,145 @@ function checkOutro(){
 function checkOutroCir(){
   document.getElementById('cir-outro-field').style.display=document.getElementById('cirurgiao').value==='outro_cir'?'flex':'none';
 }
+// ── Anestesiologistas cadastrados ──
+let anestDB = JSON.parse(localStorage.getItem('hipnos_anest') || '[]');
+
+// Poblar lista padrão se vazio
+if(!anestDB.length){
+  anestDB = [
+    {id:'marina', name:'Dra. Marina',    crm:'CRM-SP 000001', sig:''},
+    {id:'otavio', name:'Dr. Otavio',     crm:'CRM-SP 000002', sig:''},
+    {id:'rogerio',name:'Dr. Rogerio',    crm:'CRM-SP 000003', sig:''},
+    {id:'stenio', name:'Dr. Stenio',     crm:'CRM-SP 000004', sig:''},
+    {id:'diogo',  name:'Dr. Diogo',      crm:'CRM-SP 000005', sig:''},
+    {id:'leandro',name:'Dr. Leandro',    crm:'CRM-SP 000006', sig:''},
+  ];
+  saveAnestDB();
+}
+
+function saveAnestDB(){localStorage.setItem('hipnos_anest',JSON.stringify(anestDB));}
+
+function populateAnestSelect(){
+  const sel=document.getElementById('anestesio');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Selecione...</option>';
+  anestDB.forEach(a=>{
+    const o=document.createElement('option');
+    o.value=a.id; o.textContent=a.name;
+    sel.appendChild(o);
+  });
+  // Manter seleção
+  if(cur) sel.value=cur;
+}
+
+function loadAnestSignature(){
+  const sel=document.getElementById('anestesio');
+  const id=sel.value;
+  const a=anestDB.find(x=>x.id===id);
+  // Assinatura
+  const img=document.getElementById('sig-preview-print');
+  if(a&&a.sig){img.src=a.sig;img.style.display='block';}
+  else{img.src='';img.style.display='none';}
+  // Carimbo
+  const stamp=document.getElementById('stamp-preview');
+  if(a){
+    stamp.innerHTML=`<div class="stamp-box">
+      <div class="stamp-name">${a.name}</div>
+      <div class="stamp-spec">Médico Anestesiologista</div>
+      <div class="stamp-crm">${a.crm}</div>
+    </div>`;
+  } else {
+    stamp.innerHTML='';
+  }
+}
+
+function openAnestModal(){
+  renderAnestList();
+  document.getElementById('anest-modal').classList.add('open');
+}
+function closeAnestModal(){
+  document.getElementById('anest-modal').classList.remove('open');
+  document.getElementById('new-anest-name').value='';
+  document.getElementById('new-anest-crm').value='';
+  document.getElementById('new-anest-sig').value='';
+  document.getElementById('new-sig-preview').src='';
+  document.getElementById('new-sig-preview').style.display='none';
+}
+
+function renderAnestList(){
+  const list=document.getElementById('anest-modal-list');
+  if(!anestDB.length){list.innerHTML='<div style="font-size:12px;color:#888">Nenhum cadastrado ainda.</div>';return;}
+  list.innerHTML=anestDB.map((a,i)=>`
+    <div class="modal-anest-item" id="mitem-${a.id}">
+      ${a.sig?`<img class="item-sig" src="${a.sig}" alt="assinatura">`:`<div class="item-sig" style="display:flex;align-items:center;justify-content:center;font-size:9px;color:#bbb">sem assin.</div>`}
+      <div class="item-info"><div class="item-name">${a.name}</div><div class="item-crm">${a.crm}</div></div>
+      <button onclick="uploadSigFor('${a.id}')" title="Carregar assinatura" style="background:#f8f4ed;border:1px solid #d4b483;border-radius:5px;padding:3px 7px;font-size:11px;color:#8a6d28;cursor:pointer">✏ Assin.</button>
+      <button onclick="removeAnest('${a.id}')" title="Remover" style="background:none;border:none;color:#dc2626;font-size:16px;cursor:pointer;padding:0 2px">×</button>
+      <input type="file" id="sig-upload-${a.id}" accept="image/*" style="display:none" onchange="saveSigFor('${a.id}',this)">
+    </div>`).join('');
+}
+
+function uploadSigFor(id){document.getElementById('sig-upload-'+id).click();}
+
+function saveSigFor(id,input){
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const a=anestDB.find(x=>x.id===id);
+    if(a){a.sig=e.target.result;saveAnestDB();renderAnestList();loadAnestSignature();}
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewNewSig(input){
+  const file=input.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=document.getElementById('new-sig-preview');
+    img.src=e.target.result; img.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveNewAnest(){
+  const name=document.getElementById('new-anest-name').value.trim();
+  const crm=document.getElementById('new-anest-crm').value.trim();
+  if(!name){alert('Informe o nome.');return;}
+  const sigInput=document.getElementById('new-anest-sig');
+  const file=sigInput.files[0];
+  const id='a'+Date.now();
+  function finish(sig){
+    anestDB.push({id,name,crm:crm||'CRM não informado',sig});
+    saveAnestDB();
+    populateAnestSelect();
+    renderAnestList();
+    closeAnestModal();
+  }
+  if(file){
+    const r=new FileReader();
+    r.onload=e=>finish(e.target.result);
+    r.readAsDataURL(file);
+  } else {
+    finish('');
+  }
+}
+
+function removeAnest(id){
+  if(!confirm('Remover este anestesiologista?'))return;
+  anestDB=anestDB.filter(x=>x.id!==id);
+  saveAnestDB();
+  populateAnestSelect();
+  renderAnestList();
+  loadAnestSignature();
+}
+
+// Fechar modal clicando fora
+document.getElementById('anest-modal')?.addEventListener('click',function(e){
+  if(e.target===this)closeAnestModal();
+});
+
 function checkOutroAnest(){
-  document.getElementById('anest-outro-field').style.display=document.getElementById('anestesio').value==='outro_anest'?'flex':'none';
+  // não usado — gerenciado pelo modal
 }
 
 function updateSub(){
@@ -585,6 +780,7 @@ window.addEventListener('afterprint',()=>document.getElementById('assin-section'
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
+populateAnestSelect();
 addRow();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
