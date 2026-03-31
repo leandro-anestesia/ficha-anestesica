@@ -9,201 +9,160 @@
 <meta name="apple-mobile-web-app-title" content="Ficha Anest.">
 <meta name="theme-color" content="#1e3a7a">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,Helvetica,sans-serif;font-size:14px;background:#f3f4f6;color:#111;min-height:100vh;-webkit-tap-highlight-color:transparent}
-.container{padding-bottom:env(safe-area-inset-bottom,20px)}
-input:not([type="checkbox"]),select,textarea,button{-webkit-appearance:none;border-radius:6px;font-size:16px!important}
+input:not([type="checkbox"]),select,textarea,button{-webkit-appearance:none;font-family:Arial,Helvetica,sans-serif}
 input[type="checkbox"]{-webkit-appearance:checkbox;appearance:checkbox;width:20px;height:20px;accent-color:#1e3a7a;cursor:pointer;flex-shrink:0}
-@media(max-width:600px){
-  /* Layout geral */
-  .container{padding:0 10px 40px}
-  .section{padding:12px 14px;margin-bottom:10px}
-  .g2{grid-template-columns:1fr 1fr!important}
-  .g3{grid-template-columns:1fr 1fr!important}
-  .g4{grid-template-columns:1fr 1fr!important}
-  .imc-box{grid-column:span 2}
-
-  /* Topbar */
-  .topbar{padding:10px 14px}
-  .topbar h1{font-size:13px}
-  .btn{padding:8px 12px;font-size:13px}
-
-  /* Dados cirúrgicos — empilhar cirurgia e cirurgião */
-  .section .g2:first-of-type{grid-template-columns:1fr!important}
-  #outro-field{grid-column:1!important}
-
-  /* Tempos — cada bloco ocupa linha inteira, início/término lado a lado */
-  .g2.tempos-grid{grid-template-columns:1fr!important}
-  .time-block{margin-bottom:8px}
-  .time-row{flex-direction:row!important;gap:10px;align-items:flex-end;flex-wrap:wrap}
-  .time-row>div{flex:1;min-width:0}
-  .time-row>div>div{display:flex;gap:6px;align-items:center}
-  input[type="time"]{
-    width:100%!important;
-    font-size:17px!important;
-    font-weight:700;
-    color:#1e3a7a;
-    background:#EEF2FF!important;
-    border:2px solid #3b5fc0!important;
-    border-radius:8px;
-    padding:8px 10px!important;
-    -webkit-appearance:none;
-    min-height:44px
-  }
-  .btn.btn-blue.btn-sm,.btn.btn-red.btn-sm{min-width:64px;min-height:44px;font-size:13px}
-
-  /* Medicações */
-  .med-grid{grid-template-columns:1fr 1fr!important;gap:8px}
-  .vol-grid{grid-template-columns:1fr 1fr!important;gap:8px}
-  .med-card .mn{font-size:13px}
-  .med-card .mf input,.med-card .mf select{min-height:38px;font-size:15px!important}
-
-  /* Outras medicações */
-  .extra-row{grid-template-columns:1fr 1fr;gap:6px}
-  .extra-row .field:first-child{grid-column:span 2}
-  .extra-row button{grid-column:span 2;margin-top:0}
-
-  /* Tabela sinais vitais — scroll horizontal com colunas fixas legíveis */
-  .section:has(#vbody){padding:12px 8px}
-  table.vt{font-size:12px;min-width:480px}
-  table.vt th{font-size:10px;padding:6px 5px;white-space:nowrap}
-  table.vt td{padding:5px 4px}
-  table.vt td input{font-size:14px!important;min-height:36px;padding:4px 4px}
-  .vt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:6px}
-
-  /* Observações */
-  #obs{font-size:15px!important}
-}
-.topbar{background:#1e3a7a;color:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.topbar h1{font-size:16px;font-weight:700;letter-spacing:.04em}
-.topbar .actions{display:flex;gap:8px}
-.container{max-width:900px;margin:20px auto;padding:0 16px 40px}
-.section{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:14px}
-.sec-title{font-size:10px;font-weight:700;color:#1e3a7a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #EEF2FF}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.topbar{background:#1e3a7a;color:#fff;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.topbar h1{font-size:15px;font-weight:700;letter-spacing:.03em}
+.topbar-btns{display:flex;gap:8px}
+.container{max-width:900px;margin:16px auto;padding:0 14px 60px}
+.section{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.sec-title{font-size:10px;font-weight:700;color:#1e3a7a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:7px;border-bottom:2px solid #EEF2FF}
 .field{display:flex;flex-direction:column;gap:3px}
 .field label{font-size:11px;color:#6b7280;font-weight:500}
-.field input,.field select,.field textarea{padding:7px 10px;font-size:13px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;color:#111;font-family:Arial,Helvetica,sans-serif;transition:border-color .15s}
+.field input,.field select,.field textarea{padding:8px 10px;font-size:15px;border:1px solid #d1d5db;border-radius:7px;background:#f9fafb;color:#111;width:100%}
 .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#3b5fc0;background:#fff}
-.field input[readonly]{background:#f3f4f6;color:#6b7280;cursor:default}
-.imc-box{background:#EEF2FF;border-radius:8px;padding:10px 14px;text-align:center;display:flex;flex-direction:column;justify-content:center}
-.imc-box .lbl{font-size:11px;color:#6b7280;margin-bottom:3px}
+.field input[readonly]{background:#f3f4f6;color:#6b7280}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.imc-box{background:#EEF2FF;border-radius:8px;padding:10px;text-align:center;display:flex;flex-direction:column;justify-content:center;grid-column:span 2}
+.imc-box .lbl{font-size:11px;color:#6b7280;margin-bottom:2px}
 .imc-box .val{font-size:22px;font-weight:700;color:#1e3a7a}
-.imc-box .cls{font-size:12px;margin-top:3px}
+.imc-box .cls{font-size:11px;margin-top:2px}
 .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-normal{background:#d1fae5;color:#065f46}
 .badge-sobrepeso{background:#fef3c7;color:#92400e}
 .badge-obeso{background:#fee2e2;color:#991b1b}
 .badge-baixo{background:#dbeafe;color:#1e40af}
-.btn{padding:7px 14px;font-size:13px;font-weight:600;border-radius:7px;cursor:pointer;border:none;transition:opacity .15s}
-.btn:hover{opacity:.85}
+.btn{padding:8px 14px;font-size:13px;font-weight:600;border-radius:7px;cursor:pointer;border:none;transition:opacity .15s;display:inline-block}
 .btn:active{transform:scale(.97)}
 .btn-blue{background:#1e3a7a;color:#fff}
 .btn-green{background:#059669;color:#fff}
 .btn-red{background:#dc2626;color:#fff}
 .btn-gray{background:#6b7280;color:#fff}
 .btn-orange{background:#d97706;color:#fff}
-.btn-sm{padding:5px 10px;font-size:12px}
-.time-block{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px}
-.time-block .tb-label{font-size:11px;font-weight:700;color:#1e3a7a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-.time-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
-.time-display{font-size:15px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe;border-radius:6px;padding:5px 12px;min-width:70px;text-align:center}
+.btn-sm{padding:7px 12px;font-size:12px}
+.time-block{background:#f0f4ff;border:1px solid #c7d2fe;border-radius:8px;padding:12px}
+.time-block .tb-label{font-size:11px;font-weight:700;color:#1e3a7a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.time-slot{display:flex;flex-direction:column;gap:3px;flex:1}
+.time-slot span{font-size:10px;color:#6b7280;font-weight:600;text-align:center}
+.time-slot input[type="time"]{font-size:16px;font-weight:700;color:#1e3a7a;background:#fff;border:2px solid #3b5fc0;border-radius:7px;padding:7px 8px;text-align:center;width:100%}
+.time-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px}
 .dur{font-size:12px;color:#6b7280}
 .dur span{font-weight:700;color:#1e3a7a}
-.med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
-.vol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.mon-grid{display:flex;flex-wrap:wrap;gap:8px}
+.mon-item{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;font-weight:500;padding:9px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;min-height:44px}
+.med-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.vol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
 .med-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px}
-.med-card .mn{font-size:12px;font-weight:700;color:#1e3a7a;margin-bottom:8px}
+.med-card .mn{font-size:12px;font-weight:700;color:#1e3a7a;margin-bottom:7px}
 .med-card .mf{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .med-card .mf label{font-size:10px;color:#6b7280}
-.med-card .mf input,.med-card .mf select{padding:4px 7px;font-size:12px;border:1px solid #d1d5db;border-radius:5px;background:#fff;width:100%;color:#111;font-family:Arial}
+.med-card .mf input,.med-card .mf select{padding:5px 7px;font-size:13px;border:1px solid #d1d5db;border-radius:5px;background:#fff;width:100%;color:#111}
+.vol-total-card{background:#EEF2FF;border:1px solid #c7d2fe;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.vol-total-card .mn{font-size:11px;font-weight:700;color:#1e3a7a;margin-bottom:6px;text-align:center}
+.vol-total-card .vt-val{font-size:22px;font-weight:700;color:#1e3a7a}
+.vol-total-card .vt-sub{font-size:10px;color:#6b7280;margin-top:2px}
 .extra-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px}
-table.vt{width:100%;border-collapse:collapse;font-size:12px}
-table.vt th{text-align:left;padding:6px 7px;font-size:10px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe}
-table.vt td{padding:4px 5px;border:1px solid #e5e7eb}
+table.vt{width:100%;border-collapse:collapse;font-size:13px}
+table.vt th{text-align:left;padding:6px 7px;font-size:10px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe;white-space:nowrap}
+table.vt td{padding:5px 5px;border:1px solid #e5e7eb}
 table.vt tr:nth-child(even) td{background:#f8f9ff}
-table.vt td input{width:100%;padding:4px 6px;font-size:12px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;text-align:center;color:#111;font-family:Arial}
+table.vt td input{width:100%;padding:4px 5px;font-size:13px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;text-align:center;color:#111}
 table.vt td input:focus{outline:none;border-color:#3b5fc0}
-.status{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
-.status.ok{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
-.status.err{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
-
-@media print {
-  @page{size:A4 portrait;margin:7mm 8mm 7mm 8mm}
-  html,body{width:210mm;background:#fff;font-size:9px;overflow:visible!important;height:auto!important}
+.vt-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:6px}
+/* ---- MOBILE ---- */
+@media(max-width:600px){
+  .container{padding:0 10px 60px;margin:10px auto}
+  .section{padding:12px 12px;margin-bottom:10px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .imc-box{grid-column:span 2}
+  /* Dados cirúrgicos: tudo em coluna única */
+  .dados-cir-grid{grid-template-columns:1fr!important}
+  .dados-cir-grid2{grid-template-columns:1fr 1fr!important}
+  /* Tempos: blocos empilhados */
+  .tempos-grid{grid-template-columns:1fr!important}
+  /* Medicações e volumes */
+  .med-grid{grid-template-columns:1fr 1fr!important}
+  .vol-grid{grid-template-columns:1fr 1fr!important}
+  /* Extra rows */
+  .extra-row{grid-template-columns:1fr 1fr;gap:6px}
+  .extra-row .field:first-child{grid-column:span 2}
+  .extra-row button{grid-column:span 2}
+  /* Tabela */
+  table.vt{font-size:11px;min-width:460px}
+  table.vt th,table.vt td{padding:5px 4px}
+  table.vt td input{font-size:12px}
+  /* Monitorização */
+  .mon-item{font-size:13px;padding:8px 10px}
+}
+/* ---- PRINT ---- */
+@media print{
+  @page{size:A4 portrait;margin:8mm 10mm 8mm 10mm}
+  html,body{background:#fff;font-size:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .topbar,.no-print{display:none!important}
-  .container{max-width:100%;margin:0;padding:0;width:100%}
-  input[type="checkbox"]{width:11px!important;height:11px!important;accent-color:#1e3a7a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #pagina2{break-before:page;page-break-before:always}
-  .section-page2{break-inside:avoid}
-  .print-header{display:block!important}
-  .section{border:1px solid #ccc;border-radius:3px;margin-bottom:4px;padding:5px 7px;break-inside:avoid}
-  .sec-title{font-size:7.5px;padding-bottom:4px;margin-bottom:5px}
+  .container{max-width:100%;margin:0;padding:0}
+  .section{border:1px solid #ccc;border-radius:3px;margin-bottom:5px;padding:5px 8px;break-inside:avoid}
+  .sec-title{font-size:8px;padding-bottom:4px;margin-bottom:5px}
+  .field label{font-size:7px}
+  .field input,.field select,.field textarea{font-size:9px;padding:2px 5px;border:1px solid #ccc;background:#fff!important}
+  .field textarea{height:26px;resize:none}
   .g2,.g3,.g4{gap:5px}
-  .field label{font-size:7px;margin-bottom:1px}
-  .field input,.field select,.field textarea{font-size:8.5px;padding:2px 5px;border:1px solid #ccc;background:#fff}
-  .field textarea{height:28px;resize:none}
+  .dados-cir-grid{grid-template-columns:1fr 1fr 1fr!important}
+  .dados-cir-grid2{grid-template-columns:1fr 1fr 1fr!important}
   .imc-box{padding:4px 8px}
   .imc-box .lbl{font-size:7px}
   .imc-box .val{font-size:13px}
-  .imc-box .cls{font-size:8px}
   .badge{font-size:7px;padding:1px 6px}
-  .time-block{padding:5px 7px;background:#f0f4ff!important;border:1px solid #c7d2fe;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .time-block{padding:5px 8px;background:#f0f4ff!important;border:1px solid #c7d2fe}
   .time-block .tb-label{font-size:7.5px;margin-bottom:4px}
-  .time-row{gap:5px;flex-wrap:wrap}
-  input[type="time"]{font-size:11px!important;font-weight:700;color:#1e3a7a;background:#EEF2FF!important;border:1px solid #c7d2fe;padding:2px 6px!important;width:88px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .dur{font-size:7.5px;margin-top:3px!important}
-  .med-grid{grid-template-columns:repeat(4,1fr);gap:4px}
-  .vol-grid{grid-template-columns:repeat(3,1fr);gap:4px}
-  .med-card{border:1px solid #ccc;padding:4px 6px;background:#f9fafb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .med-card .mn{font-size:8px;margin-bottom:4px}
-  .med-card .mf{gap:3px}
+  .time-slot input[type="time"]{font-size:11px!important;padding:3px 6px!important;border:1px solid #c7d2fe;background:#fff!important}
+  .time-row{gap:5px;margin-bottom:4px}
+  .dur{font-size:7.5px}
+  .mon-item{padding:4px 8px;font-size:8px;border:1px solid #ccc;border-radius:4px;min-height:auto;gap:4px}
+  input[type="checkbox"]{width:10px!important;height:10px!important}
+  .med-grid{grid-template-columns:repeat(4,1fr)!important;gap:4px}
+  .vol-grid{grid-template-columns:repeat(3,1fr)!important;gap:4px}
+  .med-card,.vol-total-card{border:1px solid #ccc;padding:4px 6px;background:#f9fafb!important}
+  .med-card .mn{font-size:8px;margin-bottom:3px}
   .med-card .mf label{font-size:7px}
-  .med-card .mf input,.med-card .mf select{font-size:8px;padding:2px 4px}
-  .extra-row{gap:4px}
-  table.vt th{font-size:7.5px;padding:2px 4px;background:#EEF2FF!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .med-card .mf input,.med-card .mf select{font-size:8px;padding:2px 3px}
+  .vol-total-card .mn{font-size:8px}
+  .vol-total-card .vt-val{font-size:14px}
+  table.vt{font-size:8px;min-width:unset}
+  table.vt th{font-size:7.5px;padding:2px 4px;background:#EEF2FF!important}
   table.vt td{font-size:8px;padding:2px 4px}
   table.vt td input{font-size:8px;padding:1px 3px}
+  .vt-wrap{overflow:visible}
   #assin-section{display:block!important}
   .assin-blk span{font-size:8px}
-  .print-header h2{font-size:12px}
-  .print-header p{font-size:8px}
+  /* Quebra de página */
+  #pagina2{break-before:page;page-break-before:always}
 }
-.print-header{display:none;text-align:center;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1e3a7a}
-.print-header h2{font-size:16px;font-weight:700;color:#1e3a7a}
-.print-header p{font-size:11px;color:#666;margin-top:3px}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <h1>FICHA ANESTÉSICA</h1>
-  <div class="actions no-print">
+  <div class="topbar-btns no-print">
     <button class="btn btn-gray btn-sm" onclick="limpar()">Limpar</button>
-    <button class="btn btn-orange btn-sm" onclick="window.print()">Imprimir / Salvar PDF</button>
+    <button class="btn btn-orange btn-sm" onclick="window.print()">Imprimir / PDF</button>
   </div>
 </div>
 
 <div class="container">
 
-  <div id="status" class="status"></div>
-
-  <div class="print-header">
-    <h2>FICHA ANESTÉSICA</h2>
-    <p id="print-subtitle"></p>
-  </div>
-
-  <!-- Cabeçalho página 2 removido -->
-
   <!-- Identificação -->
   <div class="section">
     <div class="sec-title">Identificação do paciente</div>
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
-      <div class="field"><label>Nome completo</label><input type="text" id="nome" placeholder="Nome do paciente" oninput="updatePrintSubtitle()"></div>
+    <div class="g2" style="margin-bottom:10px">
+      <div class="field" style="grid-column:span 1"><label>Nome completo</label><input type="text" id="nome" placeholder="Nome do paciente" oninput="updateSub()"></div>
       <div class="field"><label>Prontuário</label><input type="text" id="pront" placeholder="Nº"></div>
     </div>
     <div class="g4">
@@ -220,7 +179,7 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
     <div class="g4">
       <div class="field"><label>Peso (kg)</label><input type="number" id="peso" placeholder="70" step=".1" oninput="calcIMC()"></div>
       <div class="field"><label>Altura (cm)</label><input type="number" id="altura" placeholder="170" oninput="calcIMC()"></div>
-      <div class="imc-box" style="grid-column:span 2">
+      <div class="imc-box">
         <div class="lbl">IMC</div>
         <div class="val" id="imc-val">—</div>
         <div class="cls" id="imc-cls">informe peso e altura</div>
@@ -231,7 +190,7 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
   <!-- Cirúrgico -->
   <div class="section">
     <div class="sec-title">Dados cirúrgicos</div>
-    <div class="g2" style="margin-bottom:12px">
+    <div class="g2 dados-cir-grid" style="margin-bottom:10px">
       <div class="field">
         <label>Cirurgia / procedimento</label>
         <select id="cirurgia" onchange="checkOutro()">
@@ -253,15 +212,23 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
             <option>Sonda lacrimal</option>
             <option>Catarata bilateral sequencial</option>
           </optgroup>
-          <optgroup label="Outros">
-            <option value="outro">Outro (digitar)</option>
-          </optgroup>
+          <optgroup label="Outros"><option value="outro">Outro (digitar)</option></optgroup>
         </select>
       </div>
       <div class="field" id="outro-field" style="display:none"><label>Especifique</label><input type="text" id="cirurgia-outro" placeholder="Descreva o procedimento"></div>
-      <div class="field"><label>Cirurgião</label><select id="cirurgiao" onchange="checkOutroCir()"><option value="">Selecione...</option><option>Dr. Bruno</option><option>Dr. Nelson</option><option>Dra. Bruna</option><option value="outro_cir">Outro...</option></select></div><div class="field" id="cir-outro-field" style="display:none"><label>Nome do cirurgião</label><input type="text" id="cirurgiao-outro" placeholder="Nome completo"></div>
+      <div class="field">
+        <label>Cirurgião</label>
+        <select id="cirurgiao" onchange="checkOutroCir()">
+          <option value="">Selecione...</option>
+          <option>Dr. Bruno</option>
+          <option>Dr. Nelson</option>
+          <option>Dra. Bruna</option>
+          <option value="outro_cir">Outro...</option>
+        </select>
+      </div>
+      <div class="field" id="cir-outro-field" style="display:none"><label>Nome do cirurgião</label><input type="text" id="cirurgiao-outro" placeholder="Nome completo"></div>
     </div>
-    <div class="g3">
+    <div class="g3 dados-cir-grid2">
       <div class="field">
         <label>Técnica anestésica</label>
         <select id="tecnica">
@@ -273,33 +240,34 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
           <option>Sedação + colírio anestésico</option>
         </select>
       </div>
-      <div class="field"><label>Anestesiologista</label><select id="anestesio" onchange="checkOutroAnest();updatePrintSubtitle()"><option value="">Selecione...</option><option>Dra. Marina</option><option>Dr. Otavio</option><option>Dr. Rogerio</option><option>Dr. Stenio</option><option>Dr. Diogo</option><option>Dr. Leandro</option><option value="outro_anest">Outro...</option></select></div><div class="field" id="anest-outro-field" style="display:none"><label>Nome do anestesiologista</label><input type="text" id="anestesio-outro" placeholder="Nome completo" oninput="updatePrintSubtitle()"></div>
-      <div class="field"><label>Data do procedimento</label><input type="date" id="data-proc" onchange="updatePrintSubtitle()"></div>
+      <div class="field">
+        <label>Anestesiologista</label>
+        <select id="anestesio" onchange="checkOutroAnest();updateSub()">
+          <option value="">Selecione...</option>
+          <option>Dra. Marina</option>
+          <option>Dr. Otavio</option>
+          <option>Dr. Rogerio</option>
+          <option>Dr. Stenio</option>
+          <option>Dr. Diogo</option>
+          <option>Dr. Leandro</option>
+          <option value="outro_anest">Outro...</option>
+        </select>
+      </div>
+      <div class="field" id="anest-outro-field" style="display:none"><label>Nome</label><input type="text" id="anestesio-outro" placeholder="Nome completo" oninput="updateSub()"></div>
+      <div class="field"><label>Data do procedimento</label><input type="date" id="data-proc" onchange="updateSub()"></div>
     </div>
   </div>
 
   <!-- Monitorização -->
   <div class="section">
     <div class="sec-title">Monitorização</div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
-        <input type="checkbox" id="mon-ecg" style="width:18px;height:18px;accent-color:#1e3a7a;cursor:pointer"> ECG
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
-        <input type="checkbox" id="mon-pani" style="width:18px;height:18px;accent-color:#1e3a7a;cursor:pointer"> PANI
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
-        <input type="checkbox" id="mon-oximetria" style="width:18px;height:18px;accent-color:#1e3a7a;cursor:pointer"> Oximetria de pulso
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
-        <input type="checkbox" id="mon-capno" style="width:18px;height:18px;accent-color:#1e3a7a;cursor:pointer"> Capnografia
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
-        <input type="checkbox" id="mon-temp" style="width:18px;height:18px;accent-color:#1e3a7a;cursor:pointer"> Temperatura
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:500;padding:8px 14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px">
-        <input type="checkbox" id="mon-bis" style="width:18px;height:18px;accent-color:#1e3a7a;cursor:pointer"> BIS
-      </label>
+    <div class="mon-grid">
+      <label class="mon-item"><input type="checkbox" id="mon-ecg"> ECG</label>
+      <label class="mon-item"><input type="checkbox" id="mon-pani"> PANI</label>
+      <label class="mon-item"><input type="checkbox" id="mon-oximetria"> Oximetria de pulso</label>
+      <label class="mon-item"><input type="checkbox" id="mon-capno"> Capnografia</label>
+      <label class="mon-item"><input type="checkbox" id="mon-temp"> Temperatura</label>
+      <label class="mon-item"><input type="checkbox" id="mon-bis"> BIS</label>
     </div>
   </div>
 
@@ -310,42 +278,34 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
       <div class="time-block">
         <div class="tb-label">Anestesia</div>
         <div class="time-row">
-          <div style="display:flex;flex-direction:column;gap:3px;align-items:center">
-            <span style="font-size:10px;color:#6b7280;font-weight:600">INÍCIO</span>
-            <div style="display:flex;gap:5px;align-items:center">
-              <input type="time" id="ai" oninput="calcDur()" style="font-size:15px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe;border-radius:6px;padding:5px 10px;width:110px;text-align:center">
-              <button class="btn btn-blue btn-sm no-print" onclick="marcarAgora('ai')" title="Marcar hora atual">Agora</button>
-            </div>
+          <div class="time-slot">
+            <span>INÍCIO</span>
+            <input type="time" id="ai" oninput="calcDur()">
           </div>
-          <div style="display:flex;flex-direction:column;gap:3px;align-items:center">
-            <span style="font-size:10px;color:#6b7280;font-weight:600">TÉRMINO</span>
-            <div style="display:flex;gap:5px;align-items:center">
-              <input type="time" id="af" oninput="calcDur()" style="font-size:15px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe;border-radius:6px;padding:5px 10px;width:110px;text-align:center">
-              <button class="btn btn-red btn-sm no-print" onclick="marcarAgora('af')" title="Marcar hora atual">Agora</button>
-            </div>
+          <button class="btn btn-blue btn-sm no-print" onclick="agora('ai')">Agora</button>
+          <div class="time-slot">
+            <span>TÉRMINO</span>
+            <input type="time" id="af" oninput="calcDur()">
           </div>
+          <button class="btn btn-red btn-sm no-print" onclick="agora('af')">Agora</button>
         </div>
-        <div class="dur" style="margin-top:6px">Duração: <span id="dur-a">—</span></div>
+        <div class="dur">Duração: <span id="dur-a">—</span></div>
       </div>
       <div class="time-block">
         <div class="tb-label">Cirurgia</div>
         <div class="time-row">
-          <div style="display:flex;flex-direction:column;gap:3px;align-items:center">
-            <span style="font-size:10px;color:#6b7280;font-weight:600">INÍCIO</span>
-            <div style="display:flex;gap:5px;align-items:center">
-              <input type="time" id="ci" oninput="calcDur()" style="font-size:15px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe;border-radius:6px;padding:5px 10px;width:110px;text-align:center">
-              <button class="btn btn-blue btn-sm no-print" onclick="marcarAgora('ci')" title="Marcar hora atual">Agora</button>
-            </div>
+          <div class="time-slot">
+            <span>INÍCIO</span>
+            <input type="time" id="ci" oninput="calcDur()">
           </div>
-          <div style="display:flex;flex-direction:column;gap:3px;align-items:center">
-            <span style="font-size:10px;color:#6b7280;font-weight:600">TÉRMINO</span>
-            <div style="display:flex;gap:5px;align-items:center">
-              <input type="time" id="cf" oninput="calcDur()" style="font-size:15px;font-weight:700;color:#1e3a7a;background:#EEF2FF;border:1px solid #c7d2fe;border-radius:6px;padding:5px 10px;width:110px;text-align:center">
-              <button class="btn btn-red btn-sm no-print" onclick="marcarAgora('cf')" title="Marcar hora atual">Agora</button>
-            </div>
+          <button class="btn btn-blue btn-sm no-print" onclick="agora('ci')">Agora</button>
+          <div class="time-slot">
+            <span>TÉRMINO</span>
+            <input type="time" id="cf" oninput="calcDur()">
           </div>
+          <button class="btn btn-red btn-sm no-print" onclick="agora('cf')">Agora</button>
         </div>
-        <div class="dur" style="margin-top:6px">Duração: <span id="dur-c">—</span></div>
+        <div class="dur">Duração: <span id="dur-c">—</span></div>
       </div>
     </div>
   </div>
@@ -361,30 +321,35 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
       <div class="med-card"><div class="mn">Ondansetrona</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="onda-dose" placeholder="4"></div><div><label>Via</label><select id="onda-via"><option>IV</option><option>IM</option></select></div></div></div>
       <div class="med-card"><div class="mn">Cetamina</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="ceta-dose" placeholder="30"></div><div><label>Via</label><select id="ceta-via"><option>IV</option><option>IM</option></select></div></div></div>
       <div class="med-card"><div class="mn">Atropina</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="atro-dose" placeholder="0.5" step=".1"></div><div><label>Via</label><select id="atro-via"><option>IV</option><option>IM</option></select></div></div></div>
+      <div class="med-card"><div class="mn">Ropivacaína 1%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="ropi-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="ropi-via"><option>Bloqueio</option><option>Local</option><option>Peridural</option></select></div></div></div>
+      <div class="med-card"><div class="mn">Lidocaína 2% c/ Vaso</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-v-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-v-via"><option>Bloqueio</option><option>Local</option><option>Infiltração</option></select></div></div></div>
+      <div class="med-card"><div class="mn">Lidocaína 2%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-via"><option>Bloqueio</option><option>Local</option><option>IV</option><option>Infiltração</option></select></div></div></div>
+      <div class="med-card"><div class="mn">Flumazenil</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="fluma-dose" placeholder="0.2" step=".1"></div><div><label>Via</label><select id="fluma-via"><option>IV</option><option>IM</option></select></div></div></div>
     </div>
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb">
+    <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:10px">
       <div style="font-size:11px;font-weight:700;color:#1e3a7a;margin-bottom:8px">Outras medicações</div>
       <div id="extra-meds"></div>
-      <button class="btn btn-gray btn-sm no-print" onclick="addExtraMed()" style="margin-top:4px">+ Adicionar medicação</button>
+      <button class="btn btn-gray btn-sm no-print" onclick="addExtraMed()">+ Adicionar medicação</button>
     </div>
   </div>
 
-  <!-- PÁGINA 2: Sinais Vitais, Volumes, Observações -->
+  <!-- PÁGINA 2 -->
   <div id="pagina2">
+
   <!-- Sinais Vitais -->
-  <div class="section section-page2">
+  <div class="section">
     <div class="sec-title">Registro de sinais vitais</div>
-    <div class="vt-scroll" style="overflow-x:auto">
+    <div class="vt-wrap">
       <table class="vt">
         <thead><tr>
-          <th style="min-width:65px">Hora</th>
-          <th style="min-width:65px">PAS (mmHg)</th>
-          <th style="min-width:65px">PAD (mmHg)</th>
-          <th style="min-width:60px">FC (bpm)</th>
-          <th style="min-width:60px">SpO2 (%)</th>
-          <th style="min-width:60px">FR (irpm)</th>
-          <th style="min-width:110px">Observações</th>
-          <th class="no-print" style="width:30px"></th>
+          <th style="min-width:62px">Hora</th>
+          <th style="min-width:62px">PAS (mmHg)</th>
+          <th style="min-width:62px">PAD (mmHg)</th>
+          <th style="min-width:58px">FC (bpm)</th>
+          <th style="min-width:58px">SpO2 (%)</th>
+          <th style="min-width:55px">FR (irpm)</th>
+          <th style="min-width:100px">Observações</th>
+          <th class="no-print" style="width:28px"></th>
         </tr></thead>
         <tbody id="vbody"></tbody>
       </table>
@@ -396,108 +361,51 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
   </div>
 
   <!-- Volumes -->
-  <div class="section section-page2">
+  <div class="section">
     <div class="sec-title">Volumes administrados</div>
     <div class="vol-grid">
-      <div class="med-card">
-        <div class="mn">Soro Fisiológico 0,9%</div>
-        <div class="mf">
-          <div><label>Volume (ml)</label><input type="number" id="vol-sf" oninput="calcVolTotal()" placeholder="500" step="50"></div>
-          <div><label>Frascos</label><input type="number" id="vol-sf-fr" placeholder="1" step="1"></div>
-        </div>
-      </div>
-      <div class="med-card">
-        <div class="mn">Ringer Lactato</div>
-        <div class="mf">
-          <div><label>Volume (ml)</label><input type="number" id="vol-rl" oninput="calcVolTotal()" placeholder="500" step="50"></div>
-          <div><label>Frascos</label><input type="number" id="vol-rl-fr" placeholder="1" step="1"></div>
-        </div>
-      </div>
-      <div class="med-card">
-        <div class="mn">Plasmalyte</div>
-        <div class="mf">
-          <div><label>Volume (ml)</label><input type="number" id="vol-pl" oninput="calcVolTotal()" placeholder="500" step="50"></div>
-          <div><label>Frascos</label><input type="number" id="vol-pl-fr" placeholder="1" step="1"></div>
-        </div>
-      </div>
-      <div class="med-card">
-        <div class="mn">Glicose 5%</div>
-        <div class="mf">
-          <div><label>Volume (ml)</label><input type="number" id="vol-gl" oninput="calcVolTotal()" placeholder="500" step="50"></div>
-          <div><label>Frascos</label><input type="number" id="vol-gl-fr" placeholder="1" step="1"></div>
-        </div>
-      </div>
-      <div class="med-card">
-        <div class="mn">Sangue / Hemoderivado</div>
-        <div class="mf">
-          <div><label>Volume (ml)</label><input type="number" id="vol-sg" oninput="calcVolTotal()" placeholder="300" step="50"></div>
-          <div><label>Tipo</label><input type="text" id="vol-sg-tp" placeholder="CH, PFC..."></div>
-        </div>
-      </div>
-      <div class="med-card">
+      <div class="med-card"><div class="mn">Soro Fisiológico 0,9%</div><div class="mf"><div><label>Volume (ml)</label><input type="number" id="vol-sf" placeholder="500" step="50" oninput="calcVol()"></div><div><label>Frascos</label><input type="number" id="vol-sf-fr" placeholder="1"></div></div></div>
+      <div class="med-card"><div class="mn">Ringer Lactato</div><div class="mf"><div><label>Volume (ml)</label><input type="number" id="vol-rl" placeholder="500" step="50" oninput="calcVol()"></div><div><label>Frascos</label><input type="number" id="vol-rl-fr" placeholder="1"></div></div></div>
+      <div class="med-card"><div class="mn">Plasmalyte</div><div class="mf"><div><label>Volume (ml)</label><input type="number" id="vol-pl" placeholder="500" step="50" oninput="calcVol()"></div><div><label>Frascos</label><input type="number" id="vol-pl-fr" placeholder="1"></div></div></div>
+      <div class="med-card"><div class="mn">Glicose 5%</div><div class="mf"><div><label>Volume (ml)</label><input type="number" id="vol-gl" placeholder="500" step="50" oninput="calcVol()"></div><div><label>Frascos</label><input type="number" id="vol-gl-fr" placeholder="1"></div></div></div>
+      <div class="med-card"><div class="mn">Sangue / Hemoderivado</div><div class="mf"><div><label>Volume (ml)</label><input type="number" id="vol-sg" placeholder="300" step="50" oninput="calcVol()"></div><div><label>Tipo</label><input type="text" id="vol-sg-tp" placeholder="CH, PFC..."></div></div></div>
+      <div class="vol-total-card">
         <div class="mn">Volume total infundido</div>
-        <div style="margin-top:6px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:#1e3a7a" id="vol-total">0 ml</div>
-          <div style="font-size:10px;color:#6b7280;margin-top:2px">calculado automaticamente</div>
-        </div>
+        <div class="vt-val" id="vol-total">0 ml</div>
+        <div class="vt-sub">calculado automaticamente</div>
       </div>
     </div>
     <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:10px">
       <div style="font-size:11px;font-weight:700;color:#1e3a7a;margin-bottom:8px">Outros volumes</div>
       <div id="extra-vols"></div>
-      <button class="btn btn-gray btn-sm no-print" onclick="addExtraVol()" style="margin-top:4px">+ Adicionar volume</button>
+      <button class="btn btn-gray btn-sm no-print" onclick="addExtraVol()">+ Adicionar volume</button>
     </div>
   </div>
 
   <!-- Observações -->
-  <div class="section section-page2">
+  <div class="section">
     <div class="sec-title">Observações clínicas / intercorrências</div>
     <div class="field"><textarea id="obs" rows="3" placeholder="Intercorrências, eventos relevantes, condutas..." style="resize:vertical"></textarea></div>
   </div>
 
-  <!-- Assinatura (só aparece no print) -->
+  <!-- Assinatura -->
   <div class="section" style="display:none" id="assin-section">
-    <div style="display:flex;justify-content:space-between;padding:20px 0 6px">
-      <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:4px"></div><span style="font-size:11px;color:#666">Assinatura do Anestesiologista</span></div>
-      <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:4px"></div><span style="font-size:11px;color:#666">CRM / Carimbo</span></div>
+    <div style="display:flex;justify-content:space-between;padding:16px 0 4px">
+      <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:3px"></div><span style="font-size:11px;color:#666">Assinatura do Anestesiologista</span></div>
+      <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:3px"></div><span style="font-size:11px;color:#666">CRM / Carimbo</span></div>
     </div>
   </div>
+
   </div><!-- fim pagina2 -->
 
-  <div style="text-align:right;margin-top:4px" class="no-print">
+  <div class="no-print" style="text-align:right;margin-top:4px">
     <button class="btn btn-orange" onclick="window.print()">Imprimir / Salvar PDF</button>
   </div>
 
-</div>
+</div><!-- fim container -->
 
 <script>
 let rc=0,em=0,ev=0;
-
-function calcVolTotal(){
-  const ids=['vol-sf','vol-rl','vol-pl','vol-gl','vol-sg'];
-  let total=ids.reduce((s,id)=>{
-    const v=parseFloat(document.getElementById(id).value)||0;
-    return s+v;
-  },0);
-  document.querySelectorAll('.extra-vol-ml').forEach(el=>{
-    total+=(parseFloat(el.value)||0);
-  });
-  document.getElementById('vol-total').textContent=total>0?total+' ml':'0 ml';
-}
-
-function addExtraVol(){
-  ev++;
-  const d=document.getElementById('extra-vols');
-  const row=document.createElement('div');
-  row.className='extra-row';
-  row.id='ev'+ev;
-  row.innerHTML=`
-    <div class="field"><label>Solução / hemocomponente</label><input type="text" placeholder="Nome do volume"></div>
-    <div class="field"><label>Volume (ml)</label><input type="number" class="extra-vol-ml" placeholder="500" step="50" oninput="calcVolTotal()"></div>
-    <div class="field"><label>Frascos</label><input type="number" placeholder="1" step="1"></div>
-    <button onclick="document.getElementById('ev${ev}').remove();calcVolTotal()" class="btn btn-red btn-sm no-print" style="margin-top:18px">×</button>`;
-  d.appendChild(row);
-}
 
 function calcIdade(){
   const d=document.getElementById('dob').value;
@@ -512,11 +420,7 @@ function calcIdade(){
 function calcIMC(){
   const p=parseFloat(document.getElementById('peso').value);
   const a=parseFloat(document.getElementById('altura').value);
-  if(!p||!a){
-    document.getElementById('imc-val').textContent='—';
-    document.getElementById('imc-cls').textContent='informe peso e altura';
-    return;
-  }
+  if(!p||!a){document.getElementById('imc-val').textContent='—';document.getElementById('imc-cls').textContent='informe peso e altura';return;}
   const imc=p/Math.pow(a/100,2);
   document.getElementById('imc-val').textContent=imc.toFixed(1);
   let c='',b='';
@@ -528,24 +432,20 @@ function calcIMC(){
 }
 
 function checkOutro(){
-  const v=document.getElementById('cirurgia').value;
-  document.getElementById('outro-field').style.display=v==='outro'?'flex':'none';
+  document.getElementById('outro-field').style.display=document.getElementById('cirurgia').value==='outro'?'flex':'none';
 }
-
 function checkOutroCir(){
-  const v=document.getElementById('cirurgiao').value;
-  document.getElementById('cir-outro-field').style.display=v==='outro_cir'?'flex':'none';
+  document.getElementById('cir-outro-field').style.display=document.getElementById('cirurgiao').value==='outro_cir'?'flex':'none';
 }
-
 function checkOutroAnest(){
-  const v=document.getElementById('anestesio').value;
-  document.getElementById('anest-outro-field').style.display=v==='outro_anest'?'flex':'none';
+  document.getElementById('anest-outro-field').style.display=document.getElementById('anestesio').value==='outro_anest'?'flex':'none';
 }
 
-function marcarAgora(id){
-  const now=new Date();
-  const hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  document.getElementById(id).value=hhmm;
+function updateSub(){}
+
+function agora(id){
+  const n=new Date();
+  document.getElementById(id).value=n.toTimeString().slice(0,5);
   calcDur();
 }
 
@@ -554,68 +454,48 @@ function calcDur(){
   const af=document.getElementById('af').value;
   const ci=document.getElementById('ci').value;
   const cf=document.getElementById('cf').value;
-  if(ai&&af){
-    const [ah,am]=ai.split(':').map(Number);
-    const [bh,bm]=af.split(':').map(Number);
-    const diff=(bh*60+bm)-(ah*60+am);
-    document.getElementById('dur-a').textContent=diff>0?diff+' min':'—';
-  }
-  if(ci&&cf){
-    const [ah,am]=ci.split(':').map(Number);
-    const [bh,bm]=cf.split(':').map(Number);
-    const diff=(bh*60+bm)-(ah*60+am);
-    document.getElementById('dur-c').textContent=diff>0?diff+' min':'—';
-  }
+  if(ai&&af){const [ah,am]=ai.split(':').map(Number);const [bh,bm]=af.split(':').map(Number);const d=(bh*60+bm)-(ah*60+am);document.getElementById('dur-a').textContent=d>0?d+' min':'—';}
+  if(ci&&cf){const [ah,am]=ci.split(':').map(Number);const [bh,bm]=cf.split(':').map(Number);const d=(bh*60+bm)-(ah*60+am);document.getElementById('dur-c').textContent=d>0?d+' min':'—';}
 }
 
 function addRow(h){
   rc++;
-  const tbody=document.getElementById('vbody');
   const tr=document.createElement('tr');
   tr.id='r'+rc;
-  tr.innerHTML=`
-    <td><input type="time" value="${h||''}"></td>
-    <td><input type="number" placeholder="120" min="40" max="300"></td>
-    <td><input type="number" placeholder="80" min="20" max="200"></td>
-    <td><input type="number" placeholder="75" min="20" max="250"></td>
-    <td><input type="number" placeholder="99" min="50" max="100"></td>
-    <td><input type="number" placeholder="16" min="4" max="60"></td>
-    <td><input type="text" placeholder="—" style="min-width:100px"></td>
-    <td class="no-print"><button onclick="document.getElementById('r${rc}').remove()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px;line-height:1">×</button></td>`;
-  tbody.appendChild(tr);
+  tr.innerHTML=`<td><input type="time" value="${h||''}"></td><td><input type="number" placeholder="120"></td><td><input type="number" placeholder="80"></td><td><input type="number" placeholder="75"></td><td><input type="number" placeholder="99"></td><td><input type="number" placeholder="16"></td><td><input type="text" placeholder="—" style="min-width:90px"></td><td class="no-print"><button onclick="document.getElementById('r${rc}').remove()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px">×</button></td>`;
+  document.getElementById('vbody').appendChild(tr);
 }
 function addRowNow(){const n=new Date();addRow(n.toTimeString().slice(0,5));}
+
+function calcVol(){
+  const ids=['vol-sf','vol-rl','vol-pl','vol-gl','vol-sg'];
+  let t=ids.reduce((s,id)=>s+(parseFloat(document.getElementById(id).value)||0),0);
+  document.querySelectorAll('.extra-vol-ml').forEach(el=>{t+=(parseFloat(el.value)||0);});
+  document.getElementById('vol-total').textContent=t>0?t+' ml':'0 ml';
+}
 
 function addExtraMed(){
   em++;
   const d=document.getElementById('extra-meds');
   const row=document.createElement('div');
-  row.className='extra-row';
-  row.id='em'+em;
-  row.innerHTML=`
-    <div class="field"><label>Medicação</label><input type="text" placeholder="Nome do fármaco"></div>
-    <div class="field"><label>Dose</label><input type="text" placeholder="ex: 50mg"></div>
-    <div class="field"><label>Via</label><select style="padding:6px 8px;font-size:13px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;width:100%;color:#111"><option>IV</option><option>IM</option><option>VO</option><option>SC</option><option>Tópico</option><option>Inalatório</option></select></div>
-    <button onclick="document.getElementById('em${em}').remove()" class="btn btn-red btn-sm no-print" style="margin-top:18px">×</button>`;
+  row.className='extra-row';row.id='em'+em;
+  row.innerHTML=`<div class="field"><label>Medicação</label><input type="text" placeholder="Nome do fármaco"></div><div class="field"><label>Dose</label><input type="text" placeholder="ex: 50mg"></div><div class="field"><label>Via</label><select style="padding:6px 8px;font-size:13px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;width:100%;color:#111"><option>IV</option><option>IM</option><option>VO</option><option>SC</option><option>Tópico</option></select></div><button onclick="document.getElementById('em${em}').remove()" class="btn btn-red btn-sm no-print" style="margin-top:18px">×</button>`;
   d.appendChild(row);
 }
 
-function updatePrintSubtitle(){
-  const nome=document.getElementById('nome').value;
-  const anestSel=document.getElementById('anestesio').value;
-  const anest=anestSel==='outro_anest'?(document.getElementById('anestesio-outro').value||''):anestSel;
-  const dp=document.getElementById('data-proc').value;
-  const dpFmt=dp?new Date(dp+'T12:00:00').toLocaleDateString('pt-BR'):'';
-  const parts=[];
-  if(nome)parts.push(nome);
-  if(dpFmt)parts.push('Data: '+dpFmt);
-  if(anest)parts.push('Anest.: '+anest);
-  document.getElementById('print-subtitle').textContent=parts.join('  |  ');
+function addExtraVol(){
+  ev++;
+  const d=document.getElementById('extra-vols');
+  const row=document.createElement('div');
+  row.className='extra-row';row.id='ev'+ev;
+  row.innerHTML=`<div class="field"><label>Solução</label><input type="text" placeholder="Nome do volume"></div><div class="field"><label>Volume (ml)</label><input type="number" class="extra-vol-ml" placeholder="500" step="50" oninput="calcVol()"></div><div class="field"><label>Frascos</label><input type="number" placeholder="1"></div><button onclick="document.getElementById('ev${ev}').remove();calcVol()" class="btn btn-red btn-sm no-print" style="margin-top:18px">×</button>`;
+  d.appendChild(row);
 }
 
 function limpar(){
-  if(!confirm('Deseja limpar todos os dados da ficha?'))return;
-  document.querySelectorAll('input:not([readonly]),select,textarea').forEach(e=>e.value='');
+  if(!confirm('Deseja limpar todos os dados?'))return;
+  document.querySelectorAll('input:not([type="checkbox"]),select,textarea').forEach(e=>{if(!e.readOnly)e.value='';});
+  document.querySelectorAll('input[type="checkbox"]').forEach(e=>e.checked=false);
   document.getElementById('idade').value='';
   document.getElementById('imc-val').textContent='—';
   document.getElementById('imc-cls').textContent='informe peso e altura';
@@ -625,27 +505,17 @@ function limpar(){
   document.getElementById('extra-meds').innerHTML='';
   document.getElementById('extra-vols').innerHTML='';
   document.getElementById('vol-total').textContent='0 ml';
+  ['outro-field','cir-outro-field','anest-outro-field'].forEach(id=>document.getElementById(id).style.display='none');
   rc=0;em=0;ev=0;
-  document.getElementById('outro-field').style.display='none';
-  document.getElementById('cir-outro-field').style.display='none';
-  document.getElementById('anest-outro-field').style.display='none';
-  document.getElementById('print-subtitle').textContent='';
   addRow();
 }
 
-window.addEventListener('beforeprint',()=>{
-  document.getElementById('assin-section').style.display='block';
-});
-window.addEventListener('afterprint',()=>{
-  document.getElementById('assin-section').style.display='none';
-});
+window.addEventListener('beforeprint',()=>document.getElementById('assin-section').style.display='block');
+window.addEventListener('afterprint',()=>document.getElementById('assin-section').style.display='none');
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 addRow();
-</script>
-<script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
 </script>
 </body>
 </html>
