@@ -14,7 +14,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,Helvetica,sans-serif;font-size:14px;background:#f3f4f6;color:#111;min-height:100vh;-webkit-tap-highlight-color:transparent}
 .container{padding-bottom:env(safe-area-inset-bottom,20px)}
-input,select,textarea,button{-webkit-appearance:none;border-radius:6px;font-size:16px!important}
+input:not([type="checkbox"]),select,textarea,button{-webkit-appearance:none;border-radius:6px;font-size:16px!important}
+input[type="checkbox"]{-webkit-appearance:checkbox;appearance:checkbox;width:20px;height:20px;accent-color:#1e3a7a;cursor:pointer;flex-shrink:0}
 @media(max-width:600px){
   /* Layout geral */
   .container{padding:0 10px 40px}
@@ -137,7 +138,7 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
   .topbar,.no-print{display:none!important}
   .container{max-width:100%;margin:0;padding:0;width:100%}
   input[type="checkbox"]{width:11px!important;height:11px!important;accent-color:#1e3a7a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .section-page2:first-of-type{break-before:page!important;page-break-before:always!important}
+  #pagina2{break-before:page;page-break-before:always}
   .section-page2{break-inside:avoid}
   .print-header{display:block!important}
   .section{border:1px solid #ccc;border-radius:3px;margin-bottom:4px;padding:5px 7px;break-inside:avoid}
@@ -196,11 +197,7 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
     <p id="print-subtitle"></p>
   </div>
 
-  <!-- Cabeçalho página 2 (só aparece no print) -->
-  <div class="print-header section-page2" id="print-header-p2" style="display:none">
-    <h2>FICHA ANESTÉSICA — Sinais Vitais</h2>
-    <p id="print-subtitle-p2"></p>
-  </div>
+  <!-- Cabeçalho página 2 removido -->
 
   <!-- Identificação -->
   <div class="section">
@@ -372,6 +369,8 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
     </div>
   </div>
 
+  <!-- PÁGINA 2: Sinais Vitais, Volumes, Observações -->
+  <div id="pagina2">
   <!-- Sinais Vitais -->
   <div class="section section-page2">
     <div class="sec-title">Registro de sinais vitais</div>
@@ -463,6 +462,7 @@ table.vt td input:focus{outline:none;border-color:#3b5fc0}
       <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:4px"></div><span style="font-size:11px;color:#666">CRM / Carimbo</span></div>
     </div>
   </div>
+  </div><!-- fim pagina2 -->
 
   <div style="text-align:right;margin-top:4px" class="no-print">
     <button class="btn btn-orange" onclick="window.print()">Imprimir / Salvar PDF</button>
@@ -611,8 +611,6 @@ function updatePrintSubtitle(){
   if(dpFmt)parts.push('Data: '+dpFmt);
   if(anest)parts.push('Anest.: '+anest);
   document.getElementById('print-subtitle').textContent=parts.join('  |  ');
-  const p2=document.getElementById('print-subtitle-p2');
-  if(p2)p2.textContent=parts.join('  |  ');
 }
 
 function limpar(){
@@ -637,12 +635,9 @@ function limpar(){
 
 window.addEventListener('beforeprint',()=>{
   document.getElementById('assin-section').style.display='block';
-  document.getElementById('print-header-p2').style.display='block';
-  updatePrintSubtitle();
 });
 window.addEventListener('afterprint',()=>{
   document.getElementById('assin-section').style.display='none';
-  document.getElementById('print-header-p2').style.display='none';
 });
 
 addRow();
