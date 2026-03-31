@@ -60,6 +60,11 @@ input[type="checkbox"]{-webkit-appearance:checkbox;appearance:checkbox;width:20p
 .med-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px}
 .med-card .mn{font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:7px}
 .med-card .mf{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.med-card .mtime{display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb;grid-column:span 2}
+.med-card .mtime label{font-size:10px;color:#6b7280;white-space:nowrap}
+.med-card .mtime input[type="time"]{flex:1;padding:4px 6px;font-size:12px;font-weight:600;color:#1a1a1a;border:1px solid #d4b483;border-radius:5px;background:#f8f4ed;width:100%}
+.med-card .mtime .btn-agora{padding:3px 8px;font-size:11px;font-weight:600;border:1px solid #d4b483;border-radius:5px;background:transparent;color:#8a6d28;cursor:pointer;white-space:nowrap}
+.med-card .mtime .btn-agora:active{transform:scale(.97)}
 .med-card .mf label{font-size:10px;color:#6b7280}
 .med-card .mf input,.med-card .mf select{padding:5px 7px;font-size:13px;border:1px solid #d1d5db;border-radius:5px;background:#fff;width:100%;color:#111}
 .vol-total-card{background:#fffdf8;border:1px solid #b8963e;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center}
@@ -135,6 +140,10 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   .vol-grid{grid-template-columns:repeat(3,1fr)!important;gap:4px}
   .med-card,.vol-total-card{border:1px solid #ccc;padding:4px 6px;background:#f9fafb!important}
   .med-card .mn{font-size:8px;margin-bottom:3px}
+  .med-card .mtime{margin-top:3px;padding-top:3px;gap:3px}
+  .med-card .mtime label{font-size:7px}
+  .med-card .mtime input[type="time"]{font-size:8px;padding:1px 3px}
+  .med-card .mtime .btn-agora{display:none}
   .med-card .mf label{font-size:7px}
   .med-card .mf input,.med-card .mf select{font-size:8px;padding:2px 3px}
   .vol-total-card .mn{font-size:8px}
@@ -333,22 +342,22 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   <div class="section">
     <div class="sec-title">Medicações utilizadas</div>
     <div class="med-grid">
-      <div class="med-card"><div class="mn">Propofol</div><div class="mf"><div><label>Indução (mg)</label><input type="number" id="prop-ind" placeholder="100"></div><div><label>Total (mg)</label><input type="number" id="prop-tot" placeholder="200"></div></div></div>
-      <div class="med-card"><div class="mn">Fentanil</div><div class="mf"><div><label>Dose (mcg)</label><input type="number" id="fent-dose" placeholder="100"></div><div><label>Via</label><select id="fent-via"><option>IV</option><option>IM</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Midazolam</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="mida-dose" placeholder="2" step=".5"></div><div><label>Via</label><select id="mida-via"><option>IV</option><option>IM</option><option>VO</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Dipirona</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="dipi-dose" placeholder="1000" step="500"></div><div><label>Via</label><select id="dipi-via"><option>IV</option><option>IM</option><option>VO</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Dexametasona</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="dexa-dose" placeholder="8"></div><div><label>Via</label><select id="dexa-via"><option>IV</option><option>IM</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Ondansetrona</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="onda-dose" placeholder="4"></div><div><label>Via</label><select id="onda-via"><option>IV</option><option>IM</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Cetamina</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="ceta-dose" placeholder="30"></div><div><label>Via</label><select id="ceta-via"><option>IV</option><option>IM</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Atropina</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="atro-dose" placeholder="0.5" step=".1"></div><div><label>Via</label><select id="atro-via"><option>IV</option><option>IM</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Ropivacaína 1%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="ropi-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="ropi-via"><option>Bloqueio</option><option>Local</option><option>Peridural</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Lidocaína 2% c/ Vaso</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-v-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-v-via"><option>Bloqueio</option><option>Local</option><option>Infiltração</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Lidocaína 2%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-via"><option>Bloqueio</option><option>Local</option><option>IV</option><option>Infiltração</option></select></div></div></div>
-      <div class="med-card"><div class="mn">Flumazenil</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="fluma-dose" placeholder="0.2" step=".1"></div><div><label>Via</label><select id="fluma-via"><option>IV</option><option>IM</option></select></div></div></div>
+      <div class="med-card"><div class="mn">Propofol</div><div class="mf"><div><label>Indução (mg)</label><input type="number" id="prop-ind" placeholder="100"></div><div><label>Total (mg)</label><input type="number" id="prop-tot" placeholder="200"></div></div><div class="mtime"><label>Horário</label><input type="time" id="prop-hora"><button class="btn-agora" onclick="document.getElementById('prop-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Fentanil</div><div class="mf"><div><label>Dose (mcg)</label><input type="number" id="fent-dose" placeholder="100"></div><div><label>Via</label><select id="fent-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="fent-hora"><button class="btn-agora" onclick="document.getElementById('fent-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Midazolam</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="mida-dose" placeholder="2" step=".5"></div><div><label>Via</label><select id="mida-via"><option>IV</option><option>IM</option><option>VO</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="mida-hora"><button class="btn-agora" onclick="document.getElementById('mida-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Dipirona</div><div class="mf"><div><label>Dose (g)</label><input type="number" id="dipi-dose" placeholder="1" step="0.5"></div><div><label>Via</label><select id="dipi-via"><option>IV</option><option>IM</option><option>VO</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="dipi-hora"><button class="btn-agora" onclick="document.getElementById('dipi-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Dexametasona</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="dexa-dose" placeholder="8"></div><div><label>Via</label><select id="dexa-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="dexa-hora"><button class="btn-agora" onclick="document.getElementById('dexa-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Ondansetrona</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="onda-dose" placeholder="4"></div><div><label>Via</label><select id="onda-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="onda-hora"><button class="btn-agora" onclick="document.getElementById('onda-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Cetamina</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="ceta-dose" placeholder="30"></div><div><label>Via</label><select id="ceta-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="ceta-hora"><button class="btn-agora" onclick="document.getElementById('ceta-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Atropina</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="atro-dose" placeholder="0.5" step=".1"></div><div><label>Via</label><select id="atro-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="atro-hora"><button class="btn-agora" onclick="document.getElementById('atro-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Ropivacaína 1%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="ropi-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="ropi-via"><option>Bloqueio</option><option>Local</option><option>Peridural</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="ropi-hora"><button class="btn-agora" onclick="document.getElementById('ropi-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Lidocaína 2% c/ Vaso</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-v-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-v-via"><option>Bloqueio</option><option>Local</option><option>Infiltração</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="lido-v-hora"><button class="btn-agora" onclick="document.getElementById('lido-v-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Lidocaína 2%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-via"><option>Bloqueio</option><option>Local</option><option>IV</option><option>Infiltração</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="lido-hora"><button class="btn-agora" onclick="document.getElementById('lido-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <div class="med-card"><div class="mn">Flumazenil</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="fluma-dose" placeholder="0.2" step=".1"></div><div><label>Via</label><select id="fluma-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="fluma-hora"><button class="btn-agora" onclick="document.getElementById('fluma-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
     </div>
     <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:10px">
       <div style="font-size:11px;font-weight:700;color:#1a1a1a;margin-bottom:8px">Outras medicações</div>
-      <div id="extra-meds"></div>
+      <div id="extra-meds" class="med-grid"></div>
       <button class="btn btn-gray btn-sm no-print" onclick="addExtraMed()">+ Adicionar medicação</button>
     </div>
   </div>
@@ -377,6 +386,12 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
     <div class="no-print" style="display:flex;gap:8px;margin-top:10px">
       <button class="btn btn-gray btn-sm" onclick="addRow()">+ Linha</button>
       <button class="btn btn-green btn-sm" onclick="addRowNow()">+ Registrar agora</button>
+    </div>
+    <!-- Gráfico sinais vitais -->
+    <div style="margin-top:14px;border-top:1px solid #e5e7eb;padding-top:12px" id="vitals-chart-wrap">
+      <div style="font-size:11px;font-weight:700;color:#8a6d28;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Gráfico de tendência</div>
+      <canvas id="vitals-chart" style="width:100%;max-height:220px"></canvas>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:11px" id="chart-legend"></div>
     </div>
   </div>
 
@@ -410,7 +425,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
 
   <!-- Assinatura -->
   <div class="section" style="display:none" id="assin-section">
-    <div style="display:flex;justify-content:space-between;padding:16px 0 4px">
+    <div style="display:flex;justify-content:space-between;padding:60px 0 4px">
       <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:3px"></div><span style="font-size:11px;color:#666">Assinatura do Anestesiologista</span></div>
       <div style="text-align:center;width:44%"><div style="border-top:1px solid #333;margin-bottom:3px"></div><span style="font-size:11px;color:#666">CRM / Carimbo</span></div>
     </div>
@@ -520,10 +535,22 @@ function calcVol(){
 function addExtraMed(){
   em++;
   const d=document.getElementById('extra-meds');
-  const row=document.createElement('div');
-  row.className='extra-row';row.id='em'+em;
-  row.innerHTML=`<div class="field"><label>Medicação</label><input type="text" placeholder="Nome do fármaco"></div><div class="field"><label>Dose</label><input type="text" placeholder="ex: 50mg"></div><div class="field"><label>Via</label><select style="padding:6px 8px;font-size:13px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;width:100%;color:#111"><option>IV</option><option>IM</option><option>VO</option><option>SC</option><option>Tópico</option></select></div><button onclick="document.getElementById('em${em}').remove()" class="btn btn-red btn-sm no-print" style="margin-top:18px">×</button>`;
-  d.appendChild(row);
+  const card=document.createElement('div');
+  card.className='med-card';card.id='em'+em;
+  card.style.position='relative';
+  card.innerHTML=`
+    <button onclick="document.getElementById('em${em}').remove()" class="no-print" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;color:#dc2626;font-size:15px;line-height:1;padding:0">×</button>
+    <div class="mn"><input type="text" placeholder="Nome do fármaco" style="font-size:12px;font-weight:700;color:#1a1a1a;background:transparent;border:none;border-bottom:1px solid #d1d5db;padding:0 0 2px;width:calc(100% - 20px);outline:none"></div>
+    <div class="mf">
+      <div><label>Dose</label><input type="text" placeholder="ex: 50mg"></div>
+      <div><label>Via</label><select style="padding:5px 7px;font-size:13px;border:1px solid #d1d5db;border-radius:5px;background:#fff;width:100%;color:#111"><option>IV</option><option>IM</option><option>VO</option><option>SC</option><option>Tópico</option><option>Inalatório</option></select></div>
+    </div>
+    <div class="mtime">
+      <label>Horário</label>
+      <input type="time" id="emh${em}">
+      <button class="btn-agora" onclick="document.getElementById('emh${em}').value=new Date().toTimeString().slice(0,5)">Agora</button>
+    </div>`;
+  d.appendChild(card);
 }
 
 function addExtraVol(){
@@ -559,6 +586,80 @@ window.addEventListener('afterprint',()=>document.getElementById('assin-section'
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 addRow();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let vitalsChart=null;
+
+function buildChart(){
+  const rows=document.querySelectorAll('#vbody tr');
+  if(!rows.length){
+    const wrap=document.getElementById('vitals-chart-wrap');
+    if(wrap)wrap.style.display='none';
+    return;
+  }
+  const wrap=document.getElementById('vitals-chart-wrap');
+  if(wrap)wrap.style.display='block';
+
+  const labels=[],pas=[],pad=[],fc=[],spo2=[],fr=[];
+  rows.forEach(tr=>{
+    const ins=tr.querySelectorAll('input');
+    const hora=ins[0]?ins[0].value:'';
+    labels.push(hora||'—');
+    pas.push(ins[1]&&ins[1].value!==''?parseFloat(ins[1].value):null);
+    pad.push(ins[2]&&ins[2].value!==''?parseFloat(ins[2].value):null);
+    fc.push(ins[3]&&ins[3].value!==''?parseFloat(ins[3].value):null);
+    spo2.push(ins[4]&&ins[4].value!==''?parseFloat(ins[4].value):null);
+    fr.push(ins[5]&&ins[5].value!==''?parseFloat(ins[5].value):null);
+  });
+
+  const datasets=[
+    {label:'PAS',data:pas,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+    {label:'PAD',data:pad,borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+    {label:'FC',data:fc,borderColor:'#1a1a1a',backgroundColor:'rgba(26,26,26,.06)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+    {label:'SpO2%',data:spo2,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+    {label:'FR',data:fr,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+  ];
+
+  // Legenda customizada
+  const leg=document.getElementById('chart-legend');
+  if(leg){
+    leg.innerHTML=datasets.map(d=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:3px;background:${d.borderColor};border-radius:2px;display:inline-block"></span><span style="color:#555">${d.label}</span></span>`).join('');
+  }
+
+  const ctx=document.getElementById('vitals-chart');
+  if(!ctx)return;
+
+  if(vitalsChart){vitalsChart.destroy();vitalsChart=null;}
+
+  vitalsChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y??'—'}`}}},
+      scales:{
+        x:{ticks:{font:{size:10},color:'#888',maxRotation:0},grid:{color:'rgba(0,0,0,.05)'}},
+        y:{ticks:{font:{size:10},color:'#888'},grid:{color:'rgba(0,0,0,.05)'},beginAtZero:false}
+      }
+    }
+  });
+  ctx.style.height='210px';
+}
+
+// Observar mudanças na tabela para atualizar o gráfico
+const vbodyEl=document.getElementById('vbody');
+if(vbodyEl){
+  new MutationObserver(()=>buildChart()).observe(vbodyEl,{childList:true,subtree:true,characterData:true,attributes:true});
+}
+// Atualizar também ao sair de qualquer input da tabela
+document.getElementById('vbody')?.addEventListener('input',buildChart);
+
+// Ocultar gráfico inicialmente
+const cw=document.getElementById('vitals-chart-wrap');
+if(cw)cw.style.display='none';
 </script>
 </body>
 </html>
