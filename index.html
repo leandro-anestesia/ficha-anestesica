@@ -491,10 +491,22 @@ function calcDur(){
 
 function addRow(h){
   rc++;
+  // Pegar valores da última linha, se existir
+  const tbody=document.getElementById('vbody');
+  const rows=tbody.querySelectorAll('tr');
+  let pas='',pad='',fc='',spo2='',fr='';
+  if(rows.length>0){
+    const lastInputs=rows[rows.length-1].querySelectorAll('input');
+    pas=lastInputs[1]?lastInputs[1].value:'';
+    pad=lastInputs[2]?lastInputs[2].value:'';
+    fc=lastInputs[3]?lastInputs[3].value:'';
+    spo2=lastInputs[4]?lastInputs[4].value:'';
+    fr=lastInputs[5]?lastInputs[5].value:'';
+  }
   const tr=document.createElement('tr');
   tr.id='r'+rc;
-  tr.innerHTML=`<td><input type="time" value="${h||''}"></td><td><input type="number" placeholder="120"></td><td><input type="number" placeholder="80"></td><td><input type="number" placeholder="75"></td><td><input type="number" placeholder="99"></td><td><input type="number" placeholder="16"></td><td><input type="text" placeholder="—" style="min-width:90px"></td><td class="no-print"><button onclick="document.getElementById('r${rc}').remove()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px">×</button></td>`;
-  document.getElementById('vbody').appendChild(tr);
+  tr.innerHTML=`<td><input type="time" value="${h||''}"></td><td><input type="number" placeholder="120" value="${pas}"></td><td><input type="number" placeholder="80" value="${pad}"></td><td><input type="number" placeholder="75" value="${fc}"></td><td><input type="number" placeholder="99" value="${spo2}"></td><td><input type="number" placeholder="16" value="${fr}"></td><td><input type="text" placeholder="—" style="min-width:90px"></td><td class="no-print"><button onclick="document.getElementById('r${rc}').remove()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px">×</button></td>`;
+  tbody.appendChild(tr);
 }
 function addRowNow(){const n=new Date();addRow(n.toTimeString().slice(0,5));}
 
