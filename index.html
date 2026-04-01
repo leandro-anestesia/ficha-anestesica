@@ -374,10 +374,10 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
       <div class="med-card"><div class="mn">Lidocaína 2% c/ Vaso</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-v-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-v-via"><option>Bloqueio</option><option>Local</option><option>Infiltração</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="lido-v-hora"><button class="btn-agora" onclick="document.getElementById('lido-v-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
       <div class="med-card"><div class="mn">Lidocaína 2%</div><div class="mf"><div><label>Dose (ml)</label><input type="number" id="lido-dose" placeholder="5" step=".5"></div><div><label>Via</label><select id="lido-via"><option>Bloqueio</option><option>Local</option><option>IV</option><option>Infiltração</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="lido-hora"><button class="btn-agora" onclick="document.getElementById('lido-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
       <div class="med-card"><div class="mn">Flumazenil</div><div class="mf"><div><label>Dose (mg)</label><input type="number" id="fluma-dose" placeholder="0.2" step=".1"></div><div><label>Via</label><select id="fluma-via"><option>IV</option><option>IM</option></select></div></div><div class="mtime"><label>Horário</label><input type="time" id="fluma-hora"><button class="btn-agora" onclick="document.getElementById('fluma-hora').value=new Date().toTimeString().slice(0,5)">Agora</button></div></div>
+      <!-- cards extras entram aqui, no mesmo grid -->
+      <span id="extra-meds-anchor"></span>
     </div>
-    <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:10px">
-      <div style="font-size:11px;font-weight:700;color:#1a1a1a;margin-bottom:8px">Outras medicações</div>
-      <div id="extra-meds" class="med-grid"></div>
+    <div style="margin-top:8px">
       <button class="btn btn-gray btn-sm no-print" onclick="addExtraMed()">+ Adicionar medicação</button>
     </div>
   </div>
@@ -768,13 +768,13 @@ function calcVol(){
 
 function addExtraMed(){
   em++;
-  const d=document.getElementById('extra-meds');
+  const anchor=document.getElementById('extra-meds-anchor');
   const card=document.createElement('div');
   card.className='med-card';card.id='em'+em;
   card.style.position='relative';
   card.innerHTML=`
     <button onclick="document.getElementById('em${em}').remove()" class="no-print" style="position:absolute;top:6px;right:6px;background:none;border:none;cursor:pointer;color:#dc2626;font-size:15px;line-height:1;padding:0">×</button>
-    <div class="mn"><input type="text" placeholder="Nome do fármaco" style="font-size:12px;font-weight:700;color:#1a1a1a;background:transparent;border:none;border-bottom:1px solid #d1d5db;padding:0 0 2px;width:calc(100% - 20px);outline:none"></div>
+    <div class="mn"><input type="text" placeholder="Nome do fármaco" style="font-size:inherit;font-weight:inherit;color:inherit;background:transparent;border:none;border-bottom:1px solid #d1d5db;padding:0 0 2px;width:calc(100% - 20px);outline:none"></div>
     <div class="mf">
       <div><label>Dose</label><input type="text" placeholder="ex: 50mg"></div>
       <div><label>Via</label><select style="padding:5px 7px;font-size:13px;border:1px solid #d1d5db;border-radius:5px;background:#fff;width:100%;color:#111"><option>IV</option><option>IM</option><option>VO</option><option>SC</option><option>Tópico</option><option>Inalatório</option></select></div>
@@ -784,7 +784,8 @@ function addExtraMed(){
       <input type="time" id="emh${em}">
       <button class="btn-agora" onclick="document.getElementById('emh${em}').value=new Date().toTimeString().slice(0,5)">Agora</button>
     </div>`;
-  d.appendChild(card);
+  // Inserir antes do anchor (dentro do mesmo med-grid)
+  anchor.parentNode.insertBefore(card, anchor);
 }
 
 function addExtraVol(){
@@ -806,7 +807,7 @@ function limpar(){
   ['ai','af','ci','cf'].forEach(id=>document.getElementById(id).value='');
   ['dur-a','dur-c'].forEach(id=>document.getElementById(id).textContent='—');
   document.getElementById('vbody').innerHTML='';
-  document.getElementById('extra-meds').innerHTML='';
+  document.querySelectorAll('[id^="em"]').forEach(el=>el.remove()); em=0;
   document.getElementById('extra-vols').innerHTML='';
   document.getElementById('vol-total').textContent='0 ml';
   ['outro-field','cir-outro-field','anest-outro-field'].forEach(id=>document.getElementById(id).style.display='none');
@@ -838,16 +839,12 @@ function _markUnusedMeds(){
   });
 
   // Ocultar label "Outras medicações" se não houver nenhum extra
-  const extraMeds = document.getElementById('extra-meds');
-  const extraLabel = extraMeds ? extraMeds.previousElementSibling : null;
-  const hasExtras = extraMeds && extraMeds.children.length > 0;
-  if(extraLabel) extraLabel.dataset.hideIfEmpty = hasExtras ? '0' : '1';
+  // Extras estão no mesmo grid — não há label separado para esconder
 }
 
 function _restoreMeds(){
   document.querySelectorAll('.med-card').forEach(c=>{ delete c.dataset.unused; });
-  const extraLabel = document.getElementById('extra-meds')?.previousElementSibling;
-  if(extraLabel) delete extraLabel.dataset.hideIfEmpty;
+  // extras no mesmo grid, nada a restaurar
 }
 
 // Usar eventos nativos de print para máxima compatibilidade (Chrome, Safari, iOS)
