@@ -873,23 +873,21 @@ function buildChart(){
   const wrap=document.getElementById('vitals-chart-wrap');
   if(wrap)wrap.style.display='block';
 
-  const labels=[],pas=[],pad=[],fc=[],spo2=[],fr=[];
+  const labels=[],pam=[],fc=[],spo2=[],fr=[];
   rows.forEach(tr=>{
     const ins=tr.querySelectorAll('input');
     const hora=ins[0]?ins[0].value:'';
     labels.push(hora||'—');
-    pas.push(ins[1]&&ins[1].value!==''?parseFloat(ins[1].value):null);
-    pad.push(ins[2]&&ins[2].value!==''?parseFloat(ins[2].value):null);
+    const pamRaw=ins[3]&&ins[3].value!==''?parseFloat(ins[3].value):null;
+    pam.push(pamRaw);
     fc.push(ins[4]&&ins[4].value!==''?parseFloat(ins[4].value):null);
     spo2.push(ins[5]&&ins[5].value!==''?parseFloat(ins[5].value):null);
     fr.push(ins[6]&&ins[6].value!==''?parseFloat(ins[6].value):null);
   });
 
   const datasets=[
-    {label:'PAS',   data:pas, borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)', tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
+    {label:'PAM',   data:pam, borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)', tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
      pointStyle:'rectRot',    pointBackgroundColor:'#dc2626',  borderDash:[]},
-    {label:'PAD',   data:pad, borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.08)',tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
-     pointStyle:'rectRot',    pointBackgroundColor:'#f97316',  borderDash:[4,2]},
     {label:'FC',    data:fc,  borderColor:'#1a1a1a',backgroundColor:'rgba(26,26,26,.06)',  tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
      pointStyle:'circle',     pointBackgroundColor:'#1a1a1a',  borderDash:[4,3]},
     {label:'SpO2%', data:spo2,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)', tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
@@ -900,8 +898,7 @@ function buildChart(){
 
   // Legendas com símbolo + cor
   const legendSymbols = {
-    'PAS':   {shape:'◆', color:'#dc2626'},
-    'PAD':   {shape:'◆', color:'#f97316'},
+    'PAM':   {shape:'◆', color:'#dc2626'},
     'FC':    {shape:'●', color:'#1a1a1a'},
     'SpO2%': {shape:'■', color:'#2563eb'},
     'FR':    {shape:'▲', color:'#059669'},
