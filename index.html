@@ -114,6 +114,8 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   html,body{background:#fff!important;font-size:8px;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   .topbar,.no-print{display:none!important}
   .hide-print{display:none!important}
+  .med-card[data-unused="1"]{display:none!important}
+  [data-hide-if-empty="1"]{display:none!important}
   .container{max-width:100%;margin:0;padding:0}
   .print-header{display:block!important;padding:3px 0 5px;margin-bottom:4px;border-bottom:2px solid #b8963e}
   .print-header h2{font-size:12px;font-weight:700;color:#1a1a1a;letter-spacing:.04em}
@@ -794,42 +796,40 @@ window.addEventListener('afterprint',()=>document.getElementById('assin-section'
 
 // ── Imprimir apenas medicações usadas ──
 function preparePrint(){
-  // Para cada med-card predefinido, ocultar se dose vazia
-  document.querySelectorAll('.med-grid .med-card').forEach(card=>{
-    const inputs = card.querySelectorAll('input[type="number"], input[type="text"]');
-    let hasValue = false;
-    inputs.forEach(inp=>{ if(inp.value && inp.value.trim()!=='') hasValue=true; });
-    // Verificar também campos de time (horário preenchido = usado)
-    card.querySelectorAll('input[type="time"]').forEach(t=>{ if(t.value) hasValue=true; });
-    if(!hasValue){
-      card.setAttribute('data-hide-print','1');
-      card.classList.add('hide-print');
-    } else {
-      card.removeAttribute('data-hide-print');
-      card.classList.remove('hide-print');
-    }
-  });
-  // Ocultar seção "Outras medicações" se vazia
-  const extraMeds = document.getElementById('extra-meds');
-  if(extraMeds){
-    const extraLabel = extraMeds.previousElementSibling;
-    if(!extraMeds.children.length){
-      extraMeds.classList.add('hide-print');
-      if(extraLabel) extraLabel.classList.add('hide-print');
-    } else {
-      extraMeds.classList.remove('hide-print');
-      if(extraLabel) extraLabel.classList.remove('hide-print');
-    }
-  }
+  // Marcar cards sem uso ANTES de imprimir
+  _markUnusedMeds();
   window.print();
-  // Restaurar após impressão
-  setTimeout(()=>{
-    document.querySelectorAll('.hide-print').forEach(el=>{
-      el.classList.remove('hide-print');
-      el.removeAttribute('data-hide-print');
-    });
-  }, 1500);
 }
+
+function _markUnusedMeds(){
+  // Todos os med-cards (predefinidos + extras)
+  document.querySelectorAll('.med-card').forEach(card=>{
+    const numInputs = card.querySelectorAll('input[type="number"]');
+    const txtInputs = card.querySelectorAll('input[type="text"]:not([placeholder="Nome do fármaco"])');
+    const timeInputs = card.querySelectorAll('input[type="time"]');
+    let hasValue = false;
+    numInputs.forEach(i=>{ if(i.value!=='') hasValue=true; });
+    txtInputs.forEach(i=>{ if(i.value.trim()!=='') hasValue=true; });
+    timeInputs.forEach(i=>{ if(i.value!=='') hasValue=true; });
+    card.dataset.unused = hasValue ? '0' : '1';
+  });
+
+  // Ocultar label "Outras medicações" se não houver nenhum extra
+  const extraMeds = document.getElementById('extra-meds');
+  const extraLabel = extraMeds ? extraMeds.previousElementSibling : null;
+  const hasExtras = extraMeds && extraMeds.children.length > 0;
+  if(extraLabel) extraLabel.dataset.hideIfEmpty = hasExtras ? '0' : '1';
+}
+
+function _restoreMeds(){
+  document.querySelectorAll('.med-card').forEach(c=>{ delete c.dataset.unused; });
+  const extraLabel = document.getElementById('extra-meds')?.previousElementSibling;
+  if(extraLabel) delete extraLabel.dataset.hideIfEmpty;
+}
+
+// Usar eventos nativos de print para máxima compatibilidade (Chrome, Safari, iOS)
+window.addEventListener('beforeprint', _markUnusedMeds);
+window.addEventListener('afterprint',  _restoreMeds);
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
