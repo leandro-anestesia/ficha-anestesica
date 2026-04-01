@@ -394,6 +394,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
           <th style="min-width:62px">Hora</th>
           <th style="min-width:62px">PAS (mmHg)</th>
           <th style="min-width:62px">PAD (mmHg)</th>
+          <th style="min-width:55px">PAM</th>
           <th style="min-width:58px">FC (bpm)</th>
           <th style="min-width:58px">SpO2 (%)</th>
           <th style="min-width:55px">FR (irpm)</th>
@@ -731,10 +732,32 @@ function addRow(h){
   }
   const tr=document.createElement('tr');
   tr.id='r'+rc;
-  tr.innerHTML=`<td><input type="time" value="${h||''}"></td><td><input type="number" placeholder="120" value="${pas}"></td><td><input type="number" placeholder="80" value="${pad}"></td><td><input type="number" placeholder="75" value="${fc}"></td><td><input type="number" placeholder="99" value="${spo2}"></td><td><input type="number" placeholder="16" value="${fr}"></td><td><input type="text" placeholder="—" style="min-width:90px"></td><td class="no-print"><button onclick="document.getElementById('r${rc}').remove()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px">×</button></td>`;
+  tr.innerHTML=`<td><input type="time" value="${h||''}"></td><td><input type="number" placeholder="120" value="${pas}" oninput="calcPAM(this)"></td><td><input type="number" placeholder="80" value="${pad}" oninput="calcPAM(this)"></td><td><input type="number" id="pam${rc}" placeholder="—" readonly tabindex="-1" style="background:#f8f4ed;color:#8a6d28;font-weight:700;cursor:default"></td><td><input type="number" placeholder="75" value="${fc}"></td><td><input type="number" placeholder="99" value="${spo2}"></td><td><input type="number" placeholder="16" value="${fr}"></td><td><input type="text" placeholder="—" style="min-width:90px"></td><td class="no-print"><button onclick="document.getElementById('r${rc}').remove()" style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:16px;padding:0 4px">×</button></td>`;
+  // calcular PAM se valores já preenchidos
+  if(pas!==''&&pad!==''){
+    const pamVal=Math.round((parseFloat(pas)+2*parseFloat(pad))/3);
+    const pamEl=tr.querySelector('[id^="pam"]');
+    if(pamEl)pamEl.value=pamVal;
+  }
   tbody.appendChild(tr);
 }
 function addRowNow(){const n=new Date();addRow(n.toTimeString().slice(0,5));}
+
+function calcPAM(inp){
+  const tr=inp.closest('tr');
+  if(!tr)return;
+  const inputs=tr.querySelectorAll('input[type="number"]');
+  // inputs[0]=PAS, [1]=PAD, [2]=PAM(readonly)
+  const pas=parseFloat(inputs[0]?.value);
+  const pad=parseFloat(inputs[1]?.value);
+  const pamEl=inputs[2];
+  if(pamEl&&!isNaN(pas)&&!isNaN(pad)){
+    pamEl.value=Math.round((pas+2*pad)/3);
+  } else if(pamEl){
+    pamEl.value='';
+  }
+  buildChart();
+}
 
 function calcVol(){
   const ids=['vol-sf','vol-rl','vol-pl','vol-gl','vol-sg'];
@@ -857,23 +880,41 @@ function buildChart(){
     labels.push(hora||'—');
     pas.push(ins[1]&&ins[1].value!==''?parseFloat(ins[1].value):null);
     pad.push(ins[2]&&ins[2].value!==''?parseFloat(ins[2].value):null);
-    fc.push(ins[3]&&ins[3].value!==''?parseFloat(ins[3].value):null);
-    spo2.push(ins[4]&&ins[4].value!==''?parseFloat(ins[4].value):null);
-    fr.push(ins[5]&&ins[5].value!==''?parseFloat(ins[5].value):null);
+    fc.push(ins[4]&&ins[4].value!==''?parseFloat(ins[4].value):null);
+    spo2.push(ins[5]&&ins[5].value!==''?parseFloat(ins[5].value):null);
+    fr.push(ins[6]&&ins[6].value!==''?parseFloat(ins[6].value):null);
   });
 
   const datasets=[
-    {label:'PAS',data:pas,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
-    {label:'PAD',data:pad,borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
-    {label:'FC',data:fc,borderColor:'#1a1a1a',backgroundColor:'rgba(26,26,26,.06)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
-    {label:'SpO2%',data:spo2,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
-    {label:'FR',data:fr,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.08)',tension:.3,pointRadius:4,pointHoverRadius:6,borderWidth:2},
+    {label:'PAS',   data:pas, borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.08)', tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
+     pointStyle:'rectRot',    pointBackgroundColor:'#dc2626',  borderDash:[]},
+    {label:'PAD',   data:pad, borderColor:'#f97316',backgroundColor:'rgba(249,115,22,.08)',tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
+     pointStyle:'rectRot',    pointBackgroundColor:'#f97316',  borderDash:[4,2]},
+    {label:'FC',    data:fc,  borderColor:'#1a1a1a',backgroundColor:'rgba(26,26,26,.06)',  tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
+     pointStyle:'circle',     pointBackgroundColor:'#1a1a1a',  borderDash:[4,3]},
+    {label:'SpO2%', data:spo2,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.08)', tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
+     pointStyle:'rect',       pointBackgroundColor:'#2563eb',  borderDash:[2,2]},
+    {label:'FR',    data:fr,  borderColor:'#059669',backgroundColor:'rgba(5,150,105,.08)', tension:.3,pointRadius:5,pointHoverRadius:7,borderWidth:2,
+     pointStyle:'triangle',   pointBackgroundColor:'#059669',  borderDash:[6,3]},
   ];
 
-  // Legenda customizada
+  // Legendas com símbolo + cor
+  const legendSymbols = {
+    'PAS':   {shape:'◆', color:'#dc2626'},
+    'PAD':   {shape:'◆', color:'#f97316'},
+    'FC':    {shape:'●', color:'#1a1a1a'},
+    'SpO2%': {shape:'■', color:'#2563eb'},
+    'FR':    {shape:'▲', color:'#059669'},
+  };
   const leg=document.getElementById('chart-legend');
   if(leg){
-    leg.innerHTML=datasets.map(d=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:3px;background:${d.borderColor};border-radius:2px;display:inline-block"></span><span style="color:#555">${d.label}</span></span>`).join('');
+    leg.innerHTML=datasets.map(d=>{
+      const s=legendSymbols[d.label];
+      return `<span style="display:flex;align-items:center;gap:4px">
+        <span style="color:${s.color};font-size:12px;line-height:1">${s.shape}</span>
+        <span style="color:#555;font-size:11px">${d.label}</span>
+      </span>`;
+    }).join('');
   }
 
   const ctx=document.getElementById('vitals-chart');
