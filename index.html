@@ -162,7 +162,26 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   #pagina2{break-before:page;page-break-before:always}
 }
 
-/* ── Cadastro de anestesiologistas ── */
+/* ── Módulo de voz ── */
+.voz-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-end;justify-content:center;padding-bottom:0}
+.voz-overlay.open{display:flex}
+.voz-panel{background:#1a1a1a;width:100%;max-width:600px;border-radius:18px 18px 0 0;padding:20px 22px 34px;color:#fff;box-shadow:0 -8px 40px rgba(0,0,0,.4)}
+.voz-panel h3{font-size:14px;font-weight:700;color:#b8963e;text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px}
+.voz-status{font-size:13px;color:#aaa;min-height:20px;margin-bottom:10px}
+.voz-transcript{background:#2a2a2a;border-radius:10px;padding:12px 14px;font-size:14px;color:#e5e7eb;min-height:52px;margin-bottom:14px;line-height:1.5;word-break:break-word}
+.voz-resultado{background:#0d3320;border:1px solid #22c55e;border-radius:10px;padding:10px 14px;font-size:13px;color:#86efac;min-height:44px;margin-bottom:14px;line-height:1.5;display:none}
+.voz-resultado.show{display:block}
+.voz-cmds{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.voz-cmd{background:#2a2a2a;border:1px solid #444;border-radius:20px;padding:4px 10px;font-size:11px;color:#aaa;cursor:default}
+.voz-cmd span{color:#b8963e}
+.voz-btns{display:flex;gap:10px}
+.voz-btn-mic{flex:1;padding:14px;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:all .2s}
+.voz-btn-mic.idle{background:#b8963e;color:#fff}
+.voz-btn-mic.listening{background:#dc2626;color:#fff;animation:pulse-mic .9s infinite}
+.voz-btn-mic.processing{background:#555;color:#fff}
+.voz-btn-close{padding:14px 18px;background:#2a2a2a;color:#aaa;border:none;border-radius:12px;cursor:pointer;font-size:14px}
+@keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}50%{box-shadow:0 0 0 10px rgba(220,38,38,0)}}
+
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal-box{background:#fff;border-radius:14px;padding:22px 24px;width:min(92vw,420px);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
@@ -193,6 +212,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
   </div>
   <div class="topbar-btns no-print">
     <button class="btn btn-gray btn-sm" onclick="limpar()">Limpar</button>
+    <button id="btn-voz" class="btn btn-sm" onclick="toggleVoz()" title="Preencher por voz" style="background:#1a1a1a;color:#fff;border:2px solid #b8963e;font-size:15px;padding:6px 10px;border-radius:7px;transition:all .2s">🎤</button>
     <button class="btn btn-orange btn-sm" onclick="window.print()">Imprimir / PDF</button>
   </div>
 </div>
@@ -495,6 +515,39 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
           <button class="btn btn-gray btn-sm" onclick="closeAnestModal()" style="flex:1">Cancelar</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Painel de Voz -->
+<div class="voz-overlay no-print" id="voz-overlay">
+  <div class="voz-panel">
+    <h3>🎤 Preenchimento por voz</h3>
+    <div class="voz-status" id="voz-status">Pressione o microfone e diga um comando.</div>
+    <div class="voz-transcript" id="voz-transcript">…</div>
+    <div class="voz-resultado" id="voz-resultado"></div>
+    <div class="voz-cmds">
+      <div class="voz-cmd"><span>"Nome do paciente</span> João Silva"</div>
+      <div class="voz-cmd"><span>"Peso</span> 70"</div>
+      <div class="voz-cmd"><span>"Altura</span> 170"</div>
+      <div class="voz-cmd"><span>"Prontuário</span> 12345"</div>
+      <div class="voz-cmd"><span>"Propofol</span> 150"</div>
+      <div class="voz-cmd"><span>"Fentanil</span> 100"</div>
+      <div class="voz-cmd"><span>"Dipirona</span> 1"</div>
+      <div class="voz-cmd"><span>"Ondansetrona</span> 4"</div>
+      <div class="voz-cmd"><span>"Dexametasona</span> 8"</div>
+      <div class="voz-cmd"><span>"Pressão</span> 120 por 80"</div>
+      <div class="voz-cmd"><span>"Frequência cardíaca</span> 75"</div>
+      <div class="voz-cmd"><span>"Saturação</span> 99"</div>
+      <div class="voz-cmd"><span>"Registrar agora"</span></div>
+      <div class="voz-cmd"><span>"Início anestesia"</span></div>
+      <div class="voz-cmd"><span>"Término anestesia"</span></div>
+      <div class="voz-cmd"><span>"Início cirurgia"</span></div>
+      <div class="voz-cmd"><span>"Término cirurgia"</span></div>
+    </div>
+    <div class="voz-btns">
+      <button class="voz-btn-mic idle" id="voz-btn-mic" onclick="vozToggleMic()">🎤 Falar</button>
+      <button class="voz-btn-close" onclick="closeVoz()">Fechar</button>
     </div>
   </div>
 </div>
@@ -850,6 +903,205 @@ function _restoreMeds(){
 // Usar eventos nativos de print para máxima compatibilidade (Chrome, Safari, iOS)
 window.addEventListener('beforeprint', _markUnusedMeds);
 window.addEventListener('afterprint',  _restoreMeds);
+
+
+// ── Módulo de Voz ──────────────────────────────────────────────
+let vozRecognition = null;
+let vozAtivo = false;
+
+function toggleVoz(){
+  const overlay = document.getElementById('voz-overlay');
+  if(overlay.classList.contains('open')){
+    closeVoz();
+  } else {
+    overlay.classList.add('open');
+    document.getElementById('voz-status').textContent = 'Pressione o microfone e diga um comando.';
+    document.getElementById('voz-transcript').textContent = '…';
+    document.getElementById('voz-resultado').classList.remove('show');
+    document.getElementById('btn-voz').style.borderColor = '#22c55e';
+  }
+}
+
+function closeVoz(){
+  vozPararMic();
+  document.getElementById('voz-overlay').classList.remove('open');
+  document.getElementById('btn-voz').style.borderColor = '#b8963e';
+}
+
+function vozToggleMic(){
+  if(vozAtivo) vozPararMic();
+  else vozIniciarMic();
+}
+
+function vozIniciarMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    document.getElementById('voz-status').textContent = '⚠️ Reconhecimento de voz não suportado neste navegador. Use Chrome ou Safari.';
+    return;
+  }
+  vozRecognition = new SR();
+  vozRecognition.lang = 'pt-BR';
+  vozRecognition.interimResults = true;
+  vozRecognition.maxAlternatives = 3;
+
+  const btn = document.getElementById('voz-btn-mic');
+  btn.className = 'voz-btn-mic listening';
+  btn.textContent = '⏹ Parar';
+  vozAtivo = true;
+  document.getElementById('voz-status').textContent = '🔴 Ouvindo… fale agora';
+  document.getElementById('voz-transcript').textContent = '…';
+
+  vozRecognition.onresult = (e) => {
+    let interim = '', final = '';
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      const t = e.results[i][0].transcript;
+      if(e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    document.getElementById('voz-transcript').textContent = final || interim || '…';
+    if(final) vozProcessar(final.trim().toLowerCase());
+  };
+
+  vozRecognition.onerror = (e) => {
+    document.getElementById('voz-status').textContent = `Erro: ${e.error === 'not-allowed' ? 'Permissão negada. Autorize o microfone.' : e.error}`;
+    vozPararMic();
+  };
+
+  vozRecognition.onend = () => { vozPararMic(); };
+  vozRecognition.start();
+}
+
+function vozPararMic(){
+  if(vozRecognition){ try{ vozRecognition.stop(); }catch(e){} vozRecognition = null; }
+  vozAtivo = false;
+  const btn = document.getElementById('voz-btn-mic');
+  if(btn){ btn.className = 'voz-btn-mic idle'; btn.textContent = '🎤 Falar'; }
+  const st = document.getElementById('voz-status');
+  if(st && st.textContent.startsWith('🔴')) st.textContent = 'Pronto. Pressione o microfone para novo comando.';
+}
+
+function vozOk(msg){
+  const el = document.getElementById('voz-resultado');
+  el.textContent = '✅ ' + msg;
+  el.classList.add('show');
+  document.getElementById('voz-status').textContent = 'Pronto. Pressione o microfone para novo comando.';
+}
+
+function vozErro(msg){
+  const el = document.getElementById('voz-resultado');
+  el.textContent = '❌ ' + msg;
+  el.classList.add('show');
+}
+
+function vozProcessar(txt){
+  // Normalizar: remover acentos para comparação
+  const n = txt.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+  // Helper: extrair número do texto
+  const num = (s) => {
+    const words = {'zero':0,'um':1,'uma':1,'dois':2,'duas':2,'tres':3,'quatro':4,'cinco':5,
+      'seis':6,'sete':7,'oito':8,'nove':9,'dez':10,'onze':11,'doze':12,'treze':13,
+      'catorze':14,'quinze':15,'vinte':20,'trinta':30,'quarenta':40,'cinquenta':50,
+      'sessenta':60,'setenta':70,'oitenta':80,'noventa':90,'cem':100,'cento':100};
+    // primeiro tenta número direto
+    const m = s.match(/[\d.,]+/);
+    if(m) return parseFloat(m[0].replace(',','.'));
+    // depois tenta palavras
+    const lw = s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    for(const [w,v] of Object.entries(words)){ if(lw.includes(w)) return v; }
+    return null;
+  };
+
+  // Hora atual formatada
+  const agora = () => new Date().toTimeString().slice(0,5);
+
+  // ── IDENTIFICAÇÃO ──
+  if(/^nome (do paciente |completo )?(.+)/.test(n)){
+    const nome = txt.replace(/^nome (do paciente |completo )?/i,'').trim();
+    const el = document.getElementById('nome'); if(el){ el.value = nome.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '); vozOk('Nome: '+el.value); return; }
+  }
+  if(/^prontuario (.+)/.test(n)){
+    const v = num(n.replace(/^prontuario /,''));
+    const el = document.getElementById('prontuario'); if(el&&v!==null){ el.value=v; vozOk('Prontuário: '+v); return; }
+  }
+
+  // ── ANTROPOMETRIA ──
+  if(/^peso (.+)/.test(n)){
+    const v = num(n.replace(/^peso /,'')); const el=document.getElementById('peso');
+    if(el&&v!==null){ el.value=v; el.dispatchEvent(new Event('input')); vozOk('Peso: '+v+' kg'); return; }
+  }
+  if(/^altura (.+)/.test(n)){
+    const v = num(n.replace(/^altura /,'')); const el=document.getElementById('altura');
+    if(el&&v!==null){ el.value=v; el.dispatchEvent(new Event('input')); vozOk('Altura: '+v+' cm'); return; }
+  }
+
+  // ── TEMPOS ──
+  if(/inicio (da )?anestesia/.test(n)){ document.getElementById('ai').value=agora(); calcDur(); vozOk('Início anestesia: '+agora()); return; }
+  if(/(termino|fim) (da )?anestesia/.test(n)){ document.getElementById('af').value=agora(); calcDur(); vozOk('Término anestesia: '+agora()); return; }
+  if(/inicio (da )?cirurgia/.test(n)){ document.getElementById('ci').value=agora(); calcDur(); vozOk('Início cirurgia: '+agora()); return; }
+  if(/(termino|fim) (da )?cirurgia/.test(n)){ document.getElementById('cf').value=agora(); calcDur(); vozOk('Término cirurgia: '+agora()); return; }
+
+  // ── SINAIS VITAIS ──
+  // "pressão 120 por 80" ou "pressão arterial 130 90"
+  if(/(pressao|pressao arterial)/.test(n)){
+    const nums = n.match(/\d+/g);
+    if(nums&&nums.length>=2){
+      const tbody=document.getElementById('vbody');
+      const rows=tbody.querySelectorAll('tr');
+      if(rows.length>0){
+        const last=rows[rows.length-1].querySelectorAll('input[type="number"]');
+        if(last[0]) last[0].value=nums[0];
+        if(last[1]) last[1].value=nums[1];
+        if(last[0]) calcPAM(last[0]);
+      }
+      vozOk('PAS/PAD: '+nums[0]+'/'+nums[1]); return;
+    }
+  }
+  if(/(frequencia cardiaca|fc|batimentos|pulso)/.test(n)){
+    const v=num(n); const rows=document.getElementById('vbody').querySelectorAll('tr');
+    if(v!==null&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[4]){ ins[4].value=v; buildChart(); vozOk('FC: '+v+' bpm'); return; } }
+  }
+  if(/(saturacao|spo2|oximetria)/.test(n)){
+    const v=num(n); const rows=document.getElementById('vbody').querySelectorAll('tr');
+    if(v!==null&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[5]){ ins[5].value=v; buildChart(); vozOk('SpO2: '+v+'%'); return; } }
+  }
+  if(/(frequencia respiratoria|fr |frequencia resp)/.test(n)){
+    const v=num(n); const rows=document.getElementById('vbody').querySelectorAll('tr');
+    if(v!==null&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[6]){ ins[6].value=v; buildChart(); vozOk('FR: '+v+' irpm'); return; } }
+  }
+  if(/registrar agora/.test(n)){ addRowNow(); vozOk('Nova linha registrada: '+agora()); return; }
+  if(/nova linha/.test(n)){ addRow(''); vozOk('Nova linha adicionada'); return; }
+
+  // ── MEDICAÇÕES ──
+  const medMap = {
+    'propofol':      {dose:'prop-ind', hora:'prop-hora'},
+    'fentanil':      {dose:'fent-dose', hora:'fent-hora'},
+    'midazolam':     {dose:'mida-dose', hora:'mida-hora'},
+    'dipirona':      {dose:'dipi-dose', hora:'dipi-hora'},
+    'dexametasona':  {dose:'dexa-dose', hora:'dexa-hora'},
+    'ondansetrona':  {dose:'onda-dose', hora:'onda-hora'},
+    'cetamina':      {dose:'ceta-dose', hora:'ceta-hora'},
+    'atropina':      {dose:'atro-dose', hora:'atro-hora'},
+    'ropivacaina':   {dose:'ropi-dose', hora:'ropi-hora'},
+    'lidocaina':     {dose:'lido-dose', hora:'lido-hora'},
+    'flumazenil':    {dose:'fluma-dose',hora:'fluma-hora'},
+  };
+  for(const [nome, ids] of Object.entries(medMap)){
+    if(n.startsWith(nome)){
+      const v=num(n.replace(nome,''));
+      const el=document.getElementById(ids.dose);
+      const hEl=document.getElementById(ids.hora);
+      if(el&&v!==null){
+        el.value=v;
+        if(hEl) hEl.value=agora();
+        vozOk(nome.charAt(0).toUpperCase()+nome.slice(1)+': '+v+' — '+agora());
+        return;
+      }
+    }
+  }
+
+  vozErro('Comando não reconhecido: "'+txt+'"');
+}
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
