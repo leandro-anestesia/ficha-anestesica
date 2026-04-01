@@ -111,48 +111,48 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
 /* ---- PRINT ---- */
 @media print{
   @page{size:A4 portrait;margin:8mm 10mm 8mm 10mm}
-  html,body{background:#fff!important;font-size:9px;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{background:#fff!important;font-size:8px;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   .topbar,.no-print{display:none!important}
   .hide-print{display:none!important}
   .container{max-width:100%;margin:0;padding:0}
-  .print-header{display:block!important;padding:4px 0 7px;margin-bottom:6px;border-bottom:2px solid #b8963e}
-  .print-header h2{font-size:13px;font-weight:700;color:#1a1a1a;letter-spacing:.04em}
-  .print-header p{font-size:9px;color:#555;margin-top:2px}
-  .section{border:1px solid #ccc;border-radius:3px;margin-bottom:5px;padding:5px 8px;break-inside:avoid;-webkit-column-break-inside:avoid}
-  .sec-title{font-size:8px;padding-bottom:4px;margin-bottom:5px}
-  .field label{font-size:7px}
-  .field input,.field select,.field textarea{font-size:9px;padding:2px 5px;border:1px solid #ccc;background:#fff!important}
-  .field textarea{height:26px;resize:none}
-  .g2,.g3,.g4{gap:5px}
+  .print-header{display:block!important;padding:3px 0 5px;margin-bottom:4px;border-bottom:2px solid #b8963e}
+  .print-header h2{font-size:12px;font-weight:700;color:#1a1a1a;letter-spacing:.04em}
+  .print-header p{font-size:8px;color:#555;margin-top:1px}
+  .section{border:1px solid #ccc;border-radius:3px;margin-bottom:4px;padding:4px 7px;break-inside:avoid;-webkit-column-break-inside:avoid}
+  .sec-title{font-size:7px;padding-bottom:3px;margin-bottom:4px}
+  .field label{font-size:6.5px}
+  .field input,.field select,.field textarea{font-size:8px;padding:1px 4px;border:1px solid #ccc;background:#fff!important;height:auto}
+  .field textarea{height:22px;resize:none}
+  .g2,.g3,.g4{gap:4px}
   .dados-cir-grid{grid-template-columns:1fr 1fr 1fr!important}
   .dados-cir-grid2{grid-template-columns:1fr 1fr 1fr!important}
-  .imc-box{padding:4px 8px}
-  .imc-box .lbl{font-size:7px}
-  .imc-box .val{font-size:13px}
-  .badge{font-size:7px;padding:1px 6px}
-  .time-block{padding:5px 8px;background:#f8f4ed!important;border:1px solid #d4b483}
-  .time-block .tb-label{font-size:7.5px;margin-bottom:4px}
-  .time-slot input[type="time"]{font-size:11px!important;padding:3px 6px!important;border:1px solid #d4b483;background:#fff!important}
-  .time-row{gap:5px;margin-bottom:4px}
-  .dur{font-size:7.5px}
-  .mon-item{padding:4px 8px;font-size:8px;border:1px solid #ccc;border-radius:4px;min-height:auto;gap:4px}
-  input[type="checkbox"]{width:10px!important;height:10px!important}
-  .med-grid{grid-template-columns:repeat(4,1fr)!important;gap:4px}
-  .vol-grid{grid-template-columns:repeat(3,1fr)!important;gap:4px}
-  .med-card,.vol-total-card{border:1px solid #ccc;padding:4px 6px;background:#f9fafb!important}
-  .med-card .mn{font-size:8px;margin-bottom:3px}
-  .med-card .mtime{margin-top:3px;padding-top:3px;gap:3px}
-  .med-card .mtime label{font-size:7px}
-  .med-card .mtime input[type="time"]{font-size:8px;padding:1px 3px}
+  .imc-box{padding:3px 6px}
+  .imc-box .lbl{font-size:6.5px}
+  .imc-box .val{font-size:11px}
+  .badge{font-size:6.5px;padding:1px 5px}
+  .time-block{padding:4px 6px;background:#f8f4ed!important;border:1px solid #d4b483}
+  .time-block .tb-label{font-size:7px;margin-bottom:3px}
+  .time-slot input[type="time"]{font-size:9px!important;padding:1px 4px!important;border:1px solid #d4b483;background:#fff!important}
+  .time-row{gap:4px;margin-bottom:3px}
+  .dur{font-size:7px}
+  .mon-item{padding:3px 6px;font-size:7.5px;border:1px solid #ccc;border-radius:4px;min-height:auto;gap:3px}
+  input[type="checkbox"]{width:9px!important;height:9px!important}
+  .med-grid{grid-template-columns:repeat(4,1fr)!important;gap:3px}
+  .vol-grid{grid-template-columns:repeat(3,1fr)!important;gap:3px}
+  .med-card,.vol-total-card{border:1px solid #ccc;padding:3px 5px;background:#f9fafb!important}
+  .med-card .mn{font-size:7.5px;margin-bottom:2px}
+  .med-card .mtime{margin-top:2px;padding-top:2px;gap:2px}
+  .med-card .mtime label{font-size:6.5px}
+  .med-card .mtime input[type="time"]{font-size:7.5px;padding:1px 2px}
   .med-card .mtime .btn-agora{display:none}
-  .med-card .mf label{font-size:7px}
-  .med-card .mf input,.med-card .mf select{font-size:8px;padding:2px 3px}
-  .vol-total-card .mn{font-size:8px}
-  .vol-total-card .vt-val{font-size:14px}
-  table.vt{font-size:8px;min-width:unset}
-  table.vt th{font-size:7.5px;padding:2px 4px;background:#f8f4ed!important}
-  table.vt td{font-size:8px;padding:2px 4px}
-  table.vt td input{font-size:8px;padding:1px 3px}
+  .med-card .mf label{font-size:6.5px}
+  .med-card .mf input,.med-card .mf select{font-size:7.5px;padding:1px 2px}
+  .vol-total-card .mn{font-size:7.5px}
+  .vol-total-card .vt-val{font-size:12px}
+  table.vt{font-size:7.5px;min-width:unset}
+  table.vt th{font-size:7px;padding:2px 3px;background:#f8f4ed!important}
+  table.vt td{font-size:7.5px;padding:2px 3px}
+  table.vt td input{font-size:7.5px;padding:1px 2px}
   .vt-wrap{overflow:visible}
   #assin-section{display:block!important}
   .assin-blk span{font-size:8px}
