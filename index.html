@@ -527,25 +527,22 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
     <div class="voz-transcript" id="voz-transcript">…</div>
     <div class="voz-resultado" id="voz-resultado"></div>
     <div class="voz-cmds">
-      <div class="voz-cmd"><span>"Nome do paciente</span> João Silva"</div>
-      <div class="voz-cmd"><span>"Peso</span> 70"</div>
-      <div class="voz-cmd"><span>"Altura</span> 170"</div>
-      <div class="voz-cmd"><span>"Prontuário</span> 12345"</div>
-      <div class="voz-cmd"><span>"Nascimento</span> 15 03 1980"</div>
-      <div class="voz-cmd"><span>"ASA</span> 2"</div>
-      <div class="voz-cmd"><span>"Propofol</span> 150"</div>
-      <div class="voz-cmd"><span>"Fentanil</span> 100"</div>
-      <div class="voz-cmd"><span>"Dipirona</span> 1"</div>
-      <div class="voz-cmd"><span>"Ondansetrona</span> 4"</div>
-      <div class="voz-cmd"><span>"Dexametasona</span> 8"</div>
-      <div class="voz-cmd"><span>"Pressão</span> 120 por 80"</div>
-      <div class="voz-cmd"><span>"Frequência cardíaca</span> 75"</div>
-      <div class="voz-cmd"><span>"Saturação</span> 99"</div>
-      <div class="voz-cmd"><span>"Registrar agora"</span></div>
-      <div class="voz-cmd"><span>"Início anestesia"</span></div>
-      <div class="voz-cmd"><span>"Término anestesia"</span></div>
-      <div class="voz-cmd"><span>"Início cirurgia"</span></div>
-      <div class="voz-cmd"><span>"Término cirurgia"</span></div>
+      <div class="voz-cmd" style="width:100%;border-color:#b8963e;color:#e5e7eb;border-radius:10px;padding:8px 12px;line-height:1.6">
+        💬 <span>Exemplo de fala contínua:</span><br>
+        "Nome João da Silva. Prontuário mil duzentos e trinta. Nascimento onze de março de mil novecentos e oitenta e dois. ASA dois. Peso 70. Altura 170. Ponto."
+      </div>
+      <div class="voz-cmd"><span>Nome</span> João da Silva</div>
+      <div class="voz-cmd"><span>Prontuário</span> 1234</div>
+      <div class="voz-cmd"><span>Nascimento</span> 11 03 1982</div>
+      <div class="voz-cmd"><span>Nascimento</span> onze de março de mil novecentos e oitenta</div>
+      <div class="voz-cmd"><span>ASA</span> 2 / ASA II / ASA dois</div>
+      <div class="voz-cmd"><span>Peso</span> 70 · <span>Altura</span> 170</div>
+      <div class="voz-cmd"><span>Pressão</span> 120 por 80</div>
+      <div class="voz-cmd"><span>FC</span> 75 · <span>Saturação</span> 99</div>
+      <div class="voz-cmd"><span>Propofol</span> 150 · <span>Fentanil</span> 100</div>
+      <div class="voz-cmd"><span>Registrar agora</span></div>
+      <div class="voz-cmd"><span>Início anestesia</span> · <span>Término cirurgia</span></div>
+      <div class="voz-cmd"><span>Ponto</span> (encerra o bloco)</div>
     </div>
     <div class="voz-btns">
       <button class="voz-btn-mic idle" id="voz-btn-mic" onclick="vozToggleMic()">🎤 Falar</button>
@@ -996,154 +993,248 @@ function vozErro(msg){
 }
 
 function vozProcessar(txt){
-  // Normalizar: remover acentos para comparação
-  const n = txt.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const resultados = [];
 
-  // Helper: extrair número do texto
-  const num = (s) => {
-    const words = {'zero':0,'um':1,'uma':1,'dois':2,'duas':2,'tres':3,'quatro':4,'cinco':5,
-      'seis':6,'sete':7,'oito':8,'nove':9,'dez':10,'onze':11,'doze':12,'treze':13,
-      'catorze':14,'quinze':15,'vinte':20,'trinta':30,'quarenta':40,'cinquenta':50,
-      'sessenta':60,'setenta':70,'oitenta':80,'noventa':90,'cem':100,'cento':100};
-    // primeiro tenta número direto
-    const m = s.match(/[\d.,]+/);
-    if(m) return parseFloat(m[0].replace(',','.'));
-    // depois tenta palavras
-    const lw = s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    for(const [w,v] of Object.entries(words)){ if(lw.includes(w)) return v; }
-    return null;
-  };
-
-  // Hora atual formatada
+  // ── Helpers ──────────────────────────────────────────────────
+  const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const agora = () => new Date().toTimeString().slice(0,5);
 
-  // ── IDENTIFICAÇÃO ──
-  if(/^nome (do paciente |completo )?(.+)/.test(n)){
-    const nome = txt.replace(/^nome (do paciente |completo )?/i,'').trim();
-    const el = document.getElementById('nome'); if(el){ el.value = nome.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '); vozOk('Nome: '+el.value); return; }
-  }
-  if(/^prontuario (.+)/.test(n)){
-    const v = txt.replace(/^prontuário |^prontuario /i,'').trim();
-    const el = document.getElementById('pront');
-    if(el){ el.value=v; vozOk('Prontuário: '+v); return; }
+  // Converte número por extenso → inteiro (suporta compostos: "mil novecentos e oitenta e dois")
+  function textoParaNum(s){
+    const n = norm(s);
+    // tenta dígitos direto
+    const dm = n.match(/[\d.,]+/);
+    if(dm) return parseFloat(dm[0].replace(',','.'));
+
+    const unit  = {zero:0,um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,
+                   seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,
+                   catorze:14,quatorze:14,quinze:15,dezesseis:16,dezessete:17,
+                   dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,
+                   cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,
+                   cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,
+                   quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,
+                   novecentos:900,mil:1000};
+    const words = n.split(/\s+e\s+|\s+/);
+    let total=0, cur=0;
+    for(const w of words){
+      if(unit[w]!==undefined){
+        const v=unit[w];
+        if(v===1000){ cur=(cur||1)*1000; total+=cur; cur=0; }
+        else if(v>=100){ cur=cur*v; }
+        else cur+=v;
+      }
+    }
+    total+=cur;
+    return total||null;
   }
 
-  // ── DATA DE NASCIMENTO ──
-  // "nascimento 15 03 1980" ou "nascimento 15/03/1980" ou "data de nascimento 15 março 1980"
-  if(/(nascimento|data de nascimento|data nascimento)/.test(n)){
-    const meses = {janeiro:1,fevereiro:2,marco:3,abril:4,maio:5,junho:6,
-                   julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
+  // Converte data por extenso → {dia, mes, ano} strings "DD","MM","YYYY"
+  function parseDobSegmento(s){
+    const n2 = norm(s);
+    const meses = {janeiro:'01',fevereiro:'02',marco:'03',abril:'04',maio:'05',junho:'06',
+                   julho:'07',agosto:'08',setembro:'09',outubro:'10',novembro:'11',dezembro:'12'};
+    // numérico: 15 03 1982
+    const nm = n2.match(/(\d{1,2})[\/\s\-](\d{1,2})[\/\s\-](\d{4})/);
+    if(nm) return {dia:nm[1].padStart(2,'0'), mes:nm[2].padStart(2,'0'), ano:nm[3]};
+    // por extenso: "onze de março de mil novecentos..."
     let dia=null,mes=null,ano=null;
-    // Tenta formato numérico: 15 03 1980 ou 15/03/1980
-    const numMatch = n.match(/(\d{1,2})[\/\s\-](\d{1,2})[\/\s\-](\d{4})/);
-    if(numMatch){ dia=numMatch[1].padStart(2,'0'); mes=numMatch[2].padStart(2,'0'); ano=numMatch[3]; }
+    for(const [nm2,mv] of Object.entries(meses)){ if(n2.includes(nm2)){mes=mv;break;} }
+    // ano: sequência ≥1900
+    const anoMatch = n2.match(/\b(19|20)\d{2}\b/);
+    if(anoMatch) ano=anoMatch[0];
     else {
-      // Tenta "15 março 1980"
-      const anoM = n.match(/\b(19|20)\d{2}\b/); if(anoM) ano=anoM[0];
-      const diaM = n.match(/\b(\d{1,2})\b/); if(diaM) dia=diaM[1].padStart(2,'0');
-      for(const [nm,mv] of Object.entries(meses)){
-        if(n.includes(nm)){ mes=String(mv).padStart(2,'0'); break; }
+      // "mil novecentos e oitenta e dois" → número extenso
+      const anoNum = textoParaNum(s);
+      if(anoNum && anoNum>=1900 && anoNum<=2100) ano=String(anoNum);
+    }
+    // dia: primeiro número < 32
+    const diaMatch = n2.match(/\b(\d{1,2})\b/);
+    if(diaMatch) dia=diaMatch[1].padStart(2,'0');
+    else {
+      const diaNum = textoParaNum(s.split(/de |março|janeiro|fevereiro|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro/i)[0]);
+      if(diaNum && diaNum<=31) dia=String(diaNum).padStart(2,'0');
+    }
+    if(dia&&mes&&ano) return {dia,mes,ano};
+    return null;
+  }
+
+  // ── Segmentação: divide a fala em pedaços por palavra-chave ──
+  // Palavras-chave que iniciam um novo segmento
+  const KEYWORDS = [
+    'nome do paciente','nome completo','nome',
+    'prontuario','prontuário',
+    'data de nascimento','nascimento',
+    'asa',
+    'peso','altura',
+    'propofol','fentanil','midazolam','dipirona','dexametasona',
+    'ondansetrona','cetamina','atropina','ropivacaina','lidocaina','flumazenil',
+    'pressao arterial','pressao','fc','frequencia cardiaca','frequencia respiratoria',
+    'saturacao','spo2',
+    'registrar agora','nova linha','inicio anestesia','termino anestesia',
+    'inicio cirurgia','termino cirurgia',
+    'ponto','fim','finalizar',
+  ];
+
+  // Ordenar por tamanho desc para casar os mais longos primeiro
+  const kw = [...KEYWORDS].sort((a,b)=>b.length-a.length);
+
+  function segmentar(raw){
+    const n2 = norm(raw);
+    const segs = [];
+    let pos = 0;
+    while(pos < n2.length){
+      let found = false;
+      for(const k of kw){
+        if(n2.startsWith(k, pos)){
+          // valor começa após a keyword até a próxima keyword
+          const start2 = pos + k.length;
+          let end2 = n2.length;
+          for(const k2 of kw){
+            const idx = n2.indexOf(k2, start2+1);
+            if(idx !== -1 && idx < end2) end2 = idx;
+          }
+          const valor = raw.slice(start2, end2).trim();
+          segs.push({chave: k, valor, valorNorm: norm(valor)});
+          pos = end2;
+          found = true;
+          break;
+        }
       }
+      if(!found) pos++;
     }
-    if(dia&&mes&&ano){
-      const el=document.getElementById('dob');
-      if(el){ el.value=`${ano}-${mes}-${dia}`; el.dispatchEvent(new Event('change')); vozOk('Nascimento: '+dia+'/'+mes+'/'+ano); return; }
+    return segs;
+  }
+
+  // ── Processar cada segmento ──────────────────────────────────
+  function processarSegmento(chave, valor, valorNorm){
+    const c = norm(chave);
+
+    // Identificação
+    if(c==='nome do paciente'||c==='nome completo'||c==='nome'){
+      if(!valor) return;
+      const el=document.getElementById('nome');
+      if(el){ el.value=valor.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '); resultados.push('👤 Nome: '+el.value); }
+      return;
     }
-    vozErro('Não entendi a data. Diga: "nascimento 15 03 1980"'); return;
-  }
-
-  // ── ASA ──
-  // "ASA 1", "ASA 2", "ASA I", "ASA II", "asa dois" etc.
-  if(/^asa/.test(n)){
-    const asaMap={'1':'ASA I','i':'ASA I','um':'ASA I','uma':'ASA I',
-                  '2':'ASA II','ii':'ASA II','dois':'ASA II','duas':'ASA II',
-                  '3':'ASA III','iii':'ASA III','tres':'ASA III',
-                  '4':'ASA IV','iv':'ASA IV','quatro':'ASA IV',
-                  '5':'ASA V','v':'ASA V','cinco':'ASA V'};
-    const part = n.replace(/^asa\s*/,'').trim();
-    const val = asaMap[part];
-    const el = document.getElementById('asa');
-    if(el&&val){ el.value=val; vozOk('ASA: '+val); return; }
-    vozErro('ASA não reconhecido. Diga "ASA 1" até "ASA 5".'); return;
-  }
-
-  // ── ANTROPOMETRIA ──
-  if(/^peso (.+)/.test(n)){
-    const v = num(n.replace(/^peso /,'')); const el=document.getElementById('peso');
-    if(el&&v!==null){ el.value=v; el.dispatchEvent(new Event('input')); vozOk('Peso: '+v+' kg'); return; }
-  }
-  if(/^altura (.+)/.test(n)){
-    const v = num(n.replace(/^altura /,'')); const el=document.getElementById('altura');
-    if(el&&v!==null){ el.value=v; el.dispatchEvent(new Event('input')); vozOk('Altura: '+v+' cm'); return; }
-  }
-
-  // ── TEMPOS ──
-  if(/inicio (da )?anestesia/.test(n)){ document.getElementById('ai').value=agora(); calcDur(); vozOk('Início anestesia: '+agora()); return; }
-  if(/(termino|fim) (da )?anestesia/.test(n)){ document.getElementById('af').value=agora(); calcDur(); vozOk('Término anestesia: '+agora()); return; }
-  if(/inicio (da )?cirurgia/.test(n)){ document.getElementById('ci').value=agora(); calcDur(); vozOk('Início cirurgia: '+agora()); return; }
-  if(/(termino|fim) (da )?cirurgia/.test(n)){ document.getElementById('cf').value=agora(); calcDur(); vozOk('Término cirurgia: '+agora()); return; }
-
-  // ── SINAIS VITAIS ──
-  // "pressão 120 por 80" ou "pressão arterial 130 90"
-  if(/(pressao|pressao arterial)/.test(n)){
-    const nums = n.match(/\d+/g);
-    if(nums&&nums.length>=2){
-      const tbody=document.getElementById('vbody');
-      const rows=tbody.querySelectorAll('tr');
-      if(rows.length>0){
-        const last=rows[rows.length-1].querySelectorAll('input[type="number"]');
-        if(last[0]) last[0].value=nums[0];
-        if(last[1]) last[1].value=nums[1];
-        if(last[0]) calcPAM(last[0]);
-      }
-      vozOk('PAS/PAD: '+nums[0]+'/'+nums[1]); return;
+    if(c==='prontuario'||c==='prontuário'){
+      const el=document.getElementById('pront');
+      if(el&&valor){ el.value=valor.replace(/[^\w\d]/g,' ').trim(); resultados.push('🔢 Prontuário: '+el.value); }
+      return;
     }
-  }
-  if(/(frequencia cardiaca|fc|batimentos|pulso)/.test(n)){
-    const v=num(n); const rows=document.getElementById('vbody').querySelectorAll('tr');
-    if(v!==null&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[4]){ ins[4].value=v; buildChart(); vozOk('FC: '+v+' bpm'); return; } }
-  }
-  if(/(saturacao|spo2|oximetria)/.test(n)){
-    const v=num(n); const rows=document.getElementById('vbody').querySelectorAll('tr');
-    if(v!==null&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[5]){ ins[5].value=v; buildChart(); vozOk('SpO2: '+v+'%'); return; } }
-  }
-  if(/(frequencia respiratoria|fr |frequencia resp)/.test(n)){
-    const v=num(n); const rows=document.getElementById('vbody').querySelectorAll('tr');
-    if(v!==null&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[6]){ ins[6].value=v; buildChart(); vozOk('FR: '+v+' irpm'); return; } }
-  }
-  if(/registrar agora/.test(n)){ addRowNow(); vozOk('Nova linha registrada: '+agora()); return; }
-  if(/nova linha/.test(n)){ addRow(''); vozOk('Nova linha adicionada'); return; }
-
-  // ── MEDICAÇÕES ──
-  const medMap = {
-    'propofol':      {dose:'prop-ind', hora:'prop-hora'},
-    'fentanil':      {dose:'fent-dose', hora:'fent-hora'},
-    'midazolam':     {dose:'mida-dose', hora:'mida-hora'},
-    'dipirona':      {dose:'dipi-dose', hora:'dipi-hora'},
-    'dexametasona':  {dose:'dexa-dose', hora:'dexa-hora'},
-    'ondansetrona':  {dose:'onda-dose', hora:'onda-hora'},
-    'cetamina':      {dose:'ceta-dose', hora:'ceta-hora'},
-    'atropina':      {dose:'atro-dose', hora:'atro-hora'},
-    'ropivacaina':   {dose:'ropi-dose', hora:'ropi-hora'},
-    'lidocaina':     {dose:'lido-dose', hora:'lido-hora'},
-    'flumazenil':    {dose:'fluma-dose',hora:'fluma-hora'},
-  };
-  for(const [nome, ids] of Object.entries(medMap)){
-    if(n.startsWith(nome)){
-      const v=num(n.replace(nome,''));
-      const el=document.getElementById(ids.dose);
-      const hEl=document.getElementById(ids.hora);
-      if(el&&v!==null){
-        el.value=v;
-        if(hEl) hEl.value=agora();
-        vozOk(nome.charAt(0).toUpperCase()+nome.slice(1)+': '+v+' — '+agora());
-        return;
-      }
+    if(c==='data de nascimento'||c==='nascimento'){
+      const d=parseDobSegmento(valor);
+      if(d){
+        const el=document.getElementById('dob');
+        if(el){ el.value=`${d.ano}-${d.mes}-${d.dia}`; el.dispatchEvent(new Event('change')); resultados.push('🎂 Nascimento: '+d.dia+'/'+d.mes+'/'+d.ano); }
+      } else { resultados.push('⚠️ Data não entendida: "'+valor+'"'); }
+      return;
     }
+    if(c==='asa'){
+      const asaMap={'1':'ASA I','i':'ASA I','um':'ASA I','uma':'ASA I',
+                    '2':'ASA II','ii':'ASA II','dois':'ASA II','duas':'ASA II',
+                    '3':'ASA III','iii':'ASA III','tres':'ASA III',
+                    '4':'ASA IV','iv':'ASA IV','quatro':'ASA IV',
+                    '5':'ASA V','v':'ASA V','cinco':'ASA V'};
+      const v=asaMap[valorNorm.trim()]||asaMap[valorNorm.replace(/^asa\s*/,'').trim()];
+      const el=document.getElementById('asa');
+      if(el&&v){ el.value=v; resultados.push('🏥 ASA: '+v); }
+      else resultados.push('⚠️ ASA não reconhecido: "'+valor+'"');
+      return;
+    }
+
+    // Antropometria
+    if(c==='peso'){
+      const v=textoParaNum(valor); const el=document.getElementById('peso');
+      if(el&&v){ el.value=v; el.dispatchEvent(new Event('input')); resultados.push('⚖️ Peso: '+v+' kg'); } return;
+    }
+    if(c==='altura'){
+      const v=textoParaNum(valor); const el=document.getElementById('altura');
+      if(el&&v){ el.value=v; el.dispatchEvent(new Event('input')); resultados.push('📏 Altura: '+v+' cm'); } return;
+    }
+
+    // Tempos
+    if(c==='inicio anestesia'){ document.getElementById('ai').value=agora(); calcDur(); resultados.push('⏱ Início anestesia: '+agora()); return; }
+    if(c==='termino anestesia'){ document.getElementById('af').value=agora(); calcDur(); resultados.push('⏱ Término anestesia: '+agora()); return; }
+    if(c==='inicio cirurgia'){ document.getElementById('ci').value=agora(); calcDur(); resultados.push('⏱ Início cirurgia: '+agora()); return; }
+    if(c==='termino cirurgia'){ document.getElementById('cf').value=agora(); calcDur(); resultados.push('⏱ Término cirurgia: '+agora()); return; }
+
+    // Sinais vitais
+    if(c==='pressao'||c==='pressao arterial'){
+      const nums=(valorNorm).match(/\d+/g)||(()=>{
+        const a=textoParaNum(valor.split(/por|e/)[0]);
+        const b=textoParaNum(valor.split(/por|e/)[1]||'');
+        return (a&&b)?[a,b]:null;
+      })();
+      if(nums&&nums.length>=2){
+        const rows=document.getElementById('vbody').querySelectorAll('tr');
+        if(rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]');
+          if(ins[0])ins[0].value=nums[0]; if(ins[1])ins[1].value=nums[1]; if(ins[0])calcPAM(ins[0]); }
+        resultados.push('🩺 PAS/PAD: '+nums[0]+'/'+nums[1]);
+      } return;
+    }
+    if(c==='fc'||c==='frequencia cardiaca'){
+      const v=textoParaNum(valor);
+      const rows=document.getElementById('vbody').querySelectorAll('tr');
+      if(v&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[4]){ins[4].value=v;buildChart();resultados.push('💓 FC: '+v+' bpm');} } return;
+    }
+    if(c==='saturacao'||c==='spo2'){
+      const v=textoParaNum(valor);
+      const rows=document.getElementById('vbody').querySelectorAll('tr');
+      if(v&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[5]){ins[5].value=v;buildChart();resultados.push('🫁 SpO2: '+v+'%');} } return;
+    }
+    if(c==='frequencia respiratoria'){
+      const v=textoParaNum(valor);
+      const rows=document.getElementById('vbody').querySelectorAll('tr');
+      if(v&&rows.length){ const ins=rows[rows.length-1].querySelectorAll('input[type="number"]'); if(ins[6]){ins[6].value=v;buildChart();resultados.push('🌬 FR: '+v+' irpm');} } return;
+    }
+    if(c==='registrar agora'){ addRowNow(); resultados.push('📋 Linha registrada: '+agora()); return; }
+    if(c==='nova linha'){ addRow(''); resultados.push('📋 Nova linha adicionada'); return; }
+
+    // Medicações
+    const medMap={
+      'propofol':{dose:'prop-ind',hora:'prop-hora'},
+      'fentanil':{dose:'fent-dose',hora:'fent-hora'},
+      'midazolam':{dose:'mida-dose',hora:'mida-hora'},
+      'dipirona':{dose:'dipi-dose',hora:'dipi-hora'},
+      'dexametasona':{dose:'dexa-dose',hora:'dexa-hora'},
+      'ondansetrona':{dose:'onda-dose',hora:'onda-hora'},
+      'cetamina':{dose:'ceta-dose',hora:'ceta-hora'},
+      'atropina':{dose:'atro-dose',hora:'atro-hora'},
+      'ropivacaina':{dose:'ropi-dose',hora:'ropi-hora'},
+      'lidocaina':{dose:'lido-dose',hora:'lido-hora'},
+      'flumazenil':{dose:'fluma-dose',hora:'fluma-hora'},
+    };
+    if(medMap[c]){
+      const v=textoParaNum(valor);
+      const el=document.getElementById(medMap[c].dose);
+      const hEl=document.getElementById(medMap[c].hora);
+      if(el&&v!==null){ el.value=v; if(hEl)hEl.value=agora(); resultados.push('💊 '+chave+': '+v+' — '+agora()); }
+      return;
+    }
+
+    // "ponto" ou "fim" → encerrar (ignorar)
+    if(c==='ponto'||c==='fim'||c==='finalizar') return;
   }
 
-  vozErro('Comando não reconhecido: "'+txt+'"');
+  // ── Executar ──────────────────────────────────────────────────
+  const segs = segmentar(txt);
+
+  if(segs.length===0){
+    // Fala não reconhecida — mostrar erro
+    vozErro('Não reconheci nenhum campo em: "'+txt+'"');
+    return;
+  }
+
+  segs.forEach(s => processarSegmento(s.chave, s.valor, s.valorNorm));
+
+  if(resultados.length>0){
+    const el=document.getElementById('voz-resultado');
+    el.innerHTML=resultados.join('<br>');
+    el.classList.add('show');
+    document.getElementById('voz-status').textContent='✅ '+resultados.length+' campo(s) preenchido(s). Fale mais ou feche.';
+  }
 }
+
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 
