@@ -531,6 +531,8 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
       <div class="voz-cmd"><span>"Peso</span> 70"</div>
       <div class="voz-cmd"><span>"Altura</span> 170"</div>
       <div class="voz-cmd"><span>"Prontuário</span> 12345"</div>
+      <div class="voz-cmd"><span>"Nascimento</span> 15 03 1980"</div>
+      <div class="voz-cmd"><span>"ASA</span> 2"</div>
       <div class="voz-cmd"><span>"Propofol</span> 150"</div>
       <div class="voz-cmd"><span>"Fentanil</span> 100"</div>
       <div class="voz-cmd"><span>"Dipirona</span> 1"</div>
@@ -1021,8 +1023,48 @@ function vozProcessar(txt){
     const el = document.getElementById('nome'); if(el){ el.value = nome.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' '); vozOk('Nome: '+el.value); return; }
   }
   if(/^prontuario (.+)/.test(n)){
-    const v = num(n.replace(/^prontuario /,''));
-    const el = document.getElementById('prontuario'); if(el&&v!==null){ el.value=v; vozOk('Prontuário: '+v); return; }
+    const v = txt.replace(/^prontuário |^prontuario /i,'').trim();
+    const el = document.getElementById('pront');
+    if(el){ el.value=v; vozOk('Prontuário: '+v); return; }
+  }
+
+  // ── DATA DE NASCIMENTO ──
+  // "nascimento 15 03 1980" ou "nascimento 15/03/1980" ou "data de nascimento 15 março 1980"
+  if(/(nascimento|data de nascimento|data nascimento)/.test(n)){
+    const meses = {janeiro:1,fevereiro:2,marco:3,abril:4,maio:5,junho:6,
+                   julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
+    let dia=null,mes=null,ano=null;
+    // Tenta formato numérico: 15 03 1980 ou 15/03/1980
+    const numMatch = n.match(/(\d{1,2})[\/\s\-](\d{1,2})[\/\s\-](\d{4})/);
+    if(numMatch){ dia=numMatch[1].padStart(2,'0'); mes=numMatch[2].padStart(2,'0'); ano=numMatch[3]; }
+    else {
+      // Tenta "15 março 1980"
+      const anoM = n.match(/\b(19|20)\d{2}\b/); if(anoM) ano=anoM[0];
+      const diaM = n.match(/\b(\d{1,2})\b/); if(diaM) dia=diaM[1].padStart(2,'0');
+      for(const [nm,mv] of Object.entries(meses)){
+        if(n.includes(nm)){ mes=String(mv).padStart(2,'0'); break; }
+      }
+    }
+    if(dia&&mes&&ano){
+      const el=document.getElementById('dob');
+      if(el){ el.value=`${ano}-${mes}-${dia}`; el.dispatchEvent(new Event('change')); vozOk('Nascimento: '+dia+'/'+mes+'/'+ano); return; }
+    }
+    vozErro('Não entendi a data. Diga: "nascimento 15 03 1980"'); return;
+  }
+
+  // ── ASA ──
+  // "ASA 1", "ASA 2", "ASA I", "ASA II", "asa dois" etc.
+  if(/^asa/.test(n)){
+    const asaMap={'1':'ASA I','i':'ASA I','um':'ASA I','uma':'ASA I',
+                  '2':'ASA II','ii':'ASA II','dois':'ASA II','duas':'ASA II',
+                  '3':'ASA III','iii':'ASA III','tres':'ASA III',
+                  '4':'ASA IV','iv':'ASA IV','quatro':'ASA IV',
+                  '5':'ASA V','v':'ASA V','cinco':'ASA V'};
+    const part = n.replace(/^asa\s*/,'').trim();
+    const val = asaMap[part];
+    const el = document.getElementById('asa');
+    if(el&&val){ el.value=val; vozOk('ASA: '+val); return; }
+    vozErro('ASA não reconhecido. Diga "ASA 1" até "ASA 5".'); return;
   }
 
   // ── ANTROPOMETRIA ──
