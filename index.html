@@ -181,6 +181,10 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
 .voz-btn-mic.processing{background:#555;color:#fff}
 .voz-btn-close{padding:14px 18px;background:#2a2a2a;color:#aaa;border:none;border-radius:12px;cursor:pointer;font-size:14px}
 @keyframes pulse-mic{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}50%{box-shadow:0 0 0 10px rgba(220,38,38,0)}}
+/* Indicador wake word ativo no botão da topbar */
+#btn-voz::after{content:'';display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;margin-left:5px;vertical-align:middle;animation:wake-pulse 2s infinite;opacity:0}
+#btn-voz.wake-on::after{opacity:1}
+@keyframes wake-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -523,6 +527,7 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
 <div class="voz-overlay no-print" id="voz-overlay">
   <div class="voz-panel">
     <h3>🎤 Preenchimento por voz</h3>
+    <div style="background:#0d3320;border:1px solid #22c55e;border-radius:8px;padding:8px 12px;font-size:12px;color:#86efac;margin-bottom:10px">💡 Diga <strong>"Hey Hipnos"</strong> a qualquer momento para ativar sem tocar na tela.</div>
     <div class="voz-status" id="voz-status">Pressione o microfone e diga um comando.</div>
     <div class="voz-transcript" id="voz-transcript">…</div>
     <div class="voz-resultado" id="voz-resultado"></div>
@@ -913,23 +918,86 @@ window.addEventListener('afterprint',  _restoreMeds);
 let vozRecognition = null;
 let vozAtivo = false;
 
+// ── Wake word (fica ouvindo em background) ──────────────────────
+let wakeRecognition = null;
+let wakeAtivo = false;
+const WAKE_WORDS = ['ei hipnos','hey hipnos','hipnos','oi hipnos','e hipnos','a hipnos'];
+
+function wakeIniciar(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR || wakeAtivo) return;
+  try {
+    wakeRecognition = new SR();
+    wakeRecognition.lang = 'pt-BR';
+    wakeRecognition.continuous = false;
+    wakeRecognition.interimResults = false;
+    wakeRecognition.maxAlternatives = 5;
+
+    wakeRecognition.onresult = (e) => {
+      for(let i=0;i<e.results.length;i++){
+        for(let j=0;j<e.results[i].length;j++){
+          const t = e.results[i][j].transcript.toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+          if(WAKE_WORDS.some(w => t.includes(w))){
+            wakeAtivar(); return;
+          }
+        }
+      }
+    };
+    wakeRecognition.onend = () => {
+      wakeAtivo = false;
+      if(!document.getElementById('voz-overlay').classList.contains('open'))
+        setTimeout(wakeIniciar, 800);
+    };
+    wakeRecognition.onerror = () => { wakeAtivo=false; setTimeout(wakeIniciar,2500); };
+    wakeRecognition.start();
+    wakeAtivo = true;
+    const b=document.getElementById('btn-voz');
+    if(b){ b.title='Diga "Hey Hipnos" para ativar · ou toque aqui'; b.classList.add('wake-on'); }
+  } catch(e){ wakeAtivo=false; }
+}
+
+function wakePararListening(){
+  if(wakeRecognition){try{wakeRecognition.abort();}catch(e){} wakeRecognition=null;}
+  wakeAtivo=false;
+  document.getElementById('btn-voz')?.classList.remove('wake-on');
+}
+
+function wakeAtivar(){
+  wakePararListening();
+  const btn=document.getElementById('btn-voz');
+  if(btn){btn.style.borderColor='#22c55e';btn.style.background='#14532d';}
+  const overlay=document.getElementById('voz-overlay');
+  if(!overlay.classList.contains('open')){
+    overlay.classList.add('open');
+    document.getElementById('voz-status').textContent='🟢 "Hey Hipnos" detectado! Ouvindo…';
+    document.getElementById('voz-transcript').textContent='…';
+    document.getElementById('voz-resultado').classList.remove('show');
+  }
+  setTimeout(()=>vozIniciarMic(),350);
+}
+
 function toggleVoz(){
-  const overlay = document.getElementById('voz-overlay');
+  const overlay=document.getElementById('voz-overlay');
   if(overlay.classList.contains('open')){
     closeVoz();
   } else {
+    wakePararListening();
     overlay.classList.add('open');
-    document.getElementById('voz-status').textContent = 'Pressione o microfone e diga um comando.';
-    document.getElementById('voz-transcript').textContent = '…';
+    document.getElementById('voz-status').textContent='Pressione o microfone e diga um comando.';
+    document.getElementById('voz-transcript').textContent='…';
     document.getElementById('voz-resultado').classList.remove('show');
-    document.getElementById('btn-voz').style.borderColor = '#22c55e';
+    const b=document.getElementById('btn-voz');
+    if(b){b.style.borderColor='#22c55e';b.style.background='#1a1a1a';}
   }
 }
 
 function closeVoz(){
   vozPararMic();
   document.getElementById('voz-overlay').classList.remove('open');
-  document.getElementById('btn-voz').style.borderColor = '#b8963e';
+  const b=document.getElementById('btn-voz');
+  if(b){b.style.borderColor='#b8963e';b.style.background='#1a1a1a';}
+  setTimeout(wakeIniciar,800);
 }
 
 function vozToggleMic(){
@@ -938,50 +1006,48 @@ function vozToggleMic(){
 }
 
 function vozIniciarMic(){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){
-    document.getElementById('voz-status').textContent = '⚠️ Reconhecimento de voz não suportado neste navegador. Use Chrome ou Safari.';
+    document.getElementById('voz-status').textContent='⚠️ Reconhecimento de voz não suportado. Use Chrome ou Safari.';
     return;
   }
-  vozRecognition = new SR();
-  vozRecognition.lang = 'pt-BR';
-  vozRecognition.interimResults = true;
-  vozRecognition.maxAlternatives = 3;
+  vozRecognition=new SR();
+  vozRecognition.lang='pt-BR';
+  vozRecognition.interimResults=true;
+  vozRecognition.maxAlternatives=3;
 
-  const btn = document.getElementById('voz-btn-mic');
-  btn.className = 'voz-btn-mic listening';
-  btn.textContent = '⏹ Parar';
-  vozAtivo = true;
-  document.getElementById('voz-status').textContent = '🔴 Ouvindo… fale agora';
-  document.getElementById('voz-transcript').textContent = '…';
+  const btn=document.getElementById('voz-btn-mic');
+  btn.className='voz-btn-mic listening';
+  btn.textContent='⏹ Parar';
+  vozAtivo=true;
+  document.getElementById('voz-status').textContent='🔴 Ouvindo… fale agora';
+  document.getElementById('voz-transcript').textContent='…';
 
-  vozRecognition.onresult = (e) => {
-    let interim = '', final = '';
-    for(let i = e.resultIndex; i < e.results.length; i++){
-      const t = e.results[i][0].transcript;
-      if(e.results[i].isFinal) final += t;
-      else interim += t;
+  vozRecognition.onresult=(e)=>{
+    let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) final+=t; else interim+=t;
     }
-    document.getElementById('voz-transcript').textContent = final || interim || '…';
+    document.getElementById('voz-transcript').textContent=final||interim||'…';
     if(final) vozProcessar(final.trim().toLowerCase());
   };
-
-  vozRecognition.onerror = (e) => {
-    document.getElementById('voz-status').textContent = `Erro: ${e.error === 'not-allowed' ? 'Permissão negada. Autorize o microfone.' : e.error}`;
+  vozRecognition.onerror=(e)=>{
+    document.getElementById('voz-status').textContent=
+      'Erro: '+(e.error==='not-allowed'?'Permissão negada. Autorize o microfone.':e.error);
     vozPararMic();
   };
-
-  vozRecognition.onend = () => { vozPararMic(); };
+  vozRecognition.onend=()=>{ vozPararMic(); };
   vozRecognition.start();
 }
 
 function vozPararMic(){
-  if(vozRecognition){ try{ vozRecognition.stop(); }catch(e){} vozRecognition = null; }
-  vozAtivo = false;
-  const btn = document.getElementById('voz-btn-mic');
-  if(btn){ btn.className = 'voz-btn-mic idle'; btn.textContent = '🎤 Falar'; }
-  const st = document.getElementById('voz-status');
-  if(st && st.textContent.startsWith('🔴')) st.textContent = 'Pronto. Pressione o microfone para novo comando.';
+  if(vozRecognition){try{vozRecognition.stop();}catch(e){} vozRecognition=null;}
+  vozAtivo=false;
+  const btn=document.getElementById('voz-btn-mic');
+  if(btn){btn.className='voz-btn-mic idle';btn.textContent='🎤 Falar';}
+  const st=document.getElementById('voz-status');
+  if(st&&st.textContent.startsWith('🔴')) st.textContent='Pronto. Pressione o microfone para novo comando.';
 }
 
 function vozOk(msg){
@@ -1316,6 +1382,8 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 
 populateAnestSelect();
 addRow();
+// Iniciar escuta por wake word automaticamente
+setTimeout(wakeIniciar, 1200);
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
