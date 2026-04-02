@@ -527,18 +527,23 @@ table.vt td input:focus{outline:none;border-color:#b8963e}
     <div class="voz-transcript" id="voz-transcript">…</div>
     <div class="voz-resultado" id="voz-resultado"></div>
     <div class="voz-cmds">
-      <div class="voz-cmd" style="width:100%;border-color:#b8963e;color:#e5e7eb;border-radius:10px;padding:8px 12px;line-height:1.6">
-        💬 <span>Exemplo de fala contínua:</span><br>
-        "Nome João da Silva. Prontuário mil duzentos e trinta. Nascimento onze de março de mil novecentos e oitenta e dois. ASA dois. Peso 70. Altura 170. Ponto."
+      <div class="voz-cmd" style="width:100%;border-color:#b8963e;color:#e5e7eb;border-radius:10px;padding:8px 12px;line-height:1.7">
+        💬 <span>Cabeçalho de uma vez:</span><br>
+        "Nome João da Silva. Prontuário 1234. Nascimento onze de março de mil novecentos e oitenta e dois. Sexo masculino. ASA dois. Peso 70. Altura 170. Ponto."
+      </div>
+      <div class="voz-cmd" style="width:100%;border-color:#2563eb;color:#e5e7eb;border-radius:10px;padding:8px 12px;line-height:1.7">
+        📊 <span>Sinais vitais de uma vez:</span><br>
+        "Sinais vitais 09h40 pressão 120 por 80 FC 75 saturação 99 FR 16. Ponto."
       </div>
       <div class="voz-cmd"><span>Nome</span> João da Silva</div>
       <div class="voz-cmd"><span>Prontuário</span> 1234</div>
       <div class="voz-cmd"><span>Nascimento</span> 11 03 1982</div>
-      <div class="voz-cmd"><span>Nascimento</span> onze de março de mil novecentos e oitenta</div>
+      <div class="voz-cmd"><span>Nascimento</span> onze de março de mil novecentos e oitenta e dois</div>
+      <div class="voz-cmd"><span>Sexo</span> masculino / feminino</div>
       <div class="voz-cmd"><span>ASA</span> 2 / ASA II / ASA dois</div>
       <div class="voz-cmd"><span>Peso</span> 70 · <span>Altura</span> 170</div>
-      <div class="voz-cmd"><span>Pressão</span> 120 por 80</div>
-      <div class="voz-cmd"><span>FC</span> 75 · <span>Saturação</span> 99</div>
+      <div class="voz-cmd"><span>Sinais vitais</span> 09:40 pressão 120 por 80 FC 75 saturação 99 FR 16</div>
+      <div class="voz-cmd"><span>Pressão</span> 120 por 80 · <span>FC</span> 75 · <span>Saturação</span> 99</div>
       <div class="voz-cmd"><span>Propofol</span> 150 · <span>Fentanil</span> 100</div>
       <div class="voz-cmd"><span>Registrar agora</span></div>
       <div class="voz-cmd"><span>Início anestesia</span> · <span>Término cirurgia</span></div>
@@ -1064,13 +1069,16 @@ function vozProcessar(txt){
     'nome do paciente','nome completo','nome',
     'prontuario','prontuário',
     'data de nascimento','nascimento',
+    'sexo',
     'asa',
     'peso','altura',
     'propofol','fentanil','midazolam','dipirona','dexametasona',
     'ondansetrona','cetamina','atropina','ropivacaina','lidocaina','flumazenil',
-    'pressao arterial','pressao','fc','frequencia cardiaca','frequencia respiratoria',
+    'pressao sistolica','pressao diastolica','pressao arterial','pressao',
+    'fc','frequencia cardiaca','frequencia respiratoria',
     'saturacao','spo2',
-    'registrar agora','nova linha','inicio anestesia','termino anestesia',
+    'sinais vitais','registrar agora','nova linha',
+    'inicio anestesia','termino anestesia',
     'inicio cirurgia','termino cirurgia',
     'ponto','fim','finalizar',
   ];
@@ -1142,6 +1150,16 @@ function vozProcessar(txt){
       return;
     }
 
+    // Sexo
+    if(c==='sexo'){
+      const el=document.getElementById('sexo');
+      if(!el) return;
+      if(/masc|homem|masculino/.test(valorNorm)){ el.value='Masculino'; resultados.push('🚹 Sexo: Masculino'); }
+      else if(/fem|mulher|feminino/.test(valorNorm)){ el.value='Feminino'; resultados.push('🚺 Sexo: Feminino'); }
+      else resultados.push('⚠️ Sexo não reconhecido. Diga "sexo masculino" ou "sexo feminino".');
+      return;
+    }
+
     // Antropometria
     if(c==='peso'){
       const v=textoParaNum(valor); const el=document.getElementById('peso');
@@ -1157,6 +1175,64 @@ function vozProcessar(txt){
     if(c==='termino anestesia'){ document.getElementById('af').value=agora(); calcDur(); resultados.push('⏱ Término anestesia: '+agora()); return; }
     if(c==='inicio cirurgia'){ document.getElementById('ci').value=agora(); calcDur(); resultados.push('⏱ Início cirurgia: '+agora()); return; }
     if(c==='termino cirurgia'){ document.getElementById('cf').value=agora(); calcDur(); resultados.push('⏱ Término cirurgia: '+agora()); return; }
+
+    // ── Sinais vitais ────────────────────────────────────────────
+    // "sinais vitais 09:40 pressão 120 por 80 FC 75 saturação 99 FR 16"
+    // Processa como sub-segmentação interna
+    if(c==='sinais vitais'){
+      // Criar nova linha com hora extraída do valor (se houver)
+      const horaMatch = valorNorm.match(/\b(\d{1,2})[h:]\s*(\d{2})\b|\b(\d{1,2})\s+(\d{2})\b/);
+      const horaLinha = horaMatch
+        ? (horaMatch[1]||horaMatch[3]).padStart(2,'0')+':'+(horaMatch[2]||horaMatch[4])
+        : agora();
+      addRow(horaLinha);
+      const rows=document.getElementById('vbody').querySelectorAll('tr');
+      const ins=rows[rows.length-1].querySelectorAll('input[type="number"]');
+      const linha = [];
+
+      // PAS/PAD: "pressão 120 por 80" ou "120 por 80" ou "sistólica 120 diastólica 80"
+      const pressMatch = valorNorm.match(/(?:pressao[^0-9]*)?(\d+)\s*(?:por|\/)\s*(\d+)/);
+      if(pressMatch){
+        if(ins[0])ins[0].value=pressMatch[1];
+        if(ins[1])ins[1].value=pressMatch[2];
+        if(ins[0])calcPAM(ins[0]);
+        linha.push('PA '+pressMatch[1]+'/'+pressMatch[2]);
+      } else {
+        // sistólica e diastólica separadas
+        const sistM=valorNorm.match(/(?:sist[oó]lica|sistolica|pas)[^\d]*(\d+)/);
+        const diastM=valorNorm.match(/(?:diast[oó]lica|diastolica|pad)[^\d]*(\d+)/);
+        if(sistM&&ins[0]){ins[0].value=sistM[1];}
+        if(diastM&&ins[1]){ins[1].value=diastM[1];}
+        if(sistM||diastM){if(ins[0])calcPAM(ins[0]); linha.push('PA '+(sistM?sistM[1]:'?')+'/'+(diastM?diastM[1]:'?'));}
+      }
+
+      // FC
+      const fcM=valorNorm.match(/(?:fc|frequencia\s*cardiaca|cardiaca)[^\d]*(\d+)/);
+      if(fcM&&ins[4]){ins[4].value=fcM[1]; linha.push('FC '+fcM[1]);}
+
+      // SpO2
+      const spo2M=valorNorm.match(/(?:saturacao|spo2|oximetria)[^\d]*(\d+)/);
+      if(spo2M&&ins[5]){ins[5].value=spo2M[1]; buildChart(); linha.push('SpO2 '+spo2M[1]+'%');}
+
+      // FR
+      const frM=valorNorm.match(/(?:fr|frequencia\s*respiratoria|respiratoria)[^\d]*(\d+)/);
+      if(frM&&ins[6]){ins[6].value=frM[1]; buildChart(); linha.push('FR '+frM[1]);}
+
+      resultados.push('📊 Sinais '+horaLinha+': '+(linha.length?linha.join(' | '):'(sem valores)'));
+      return;
+    }
+
+    // Pressão sistólica e diastólica isoladas (para registro na última linha)
+    if(c==='pressao sistolica'){
+      const v=textoParaNum(valor);
+      const rows=document.getElementById('vbody').querySelectorAll('tr');
+      if(v&&rows.length){const ins=rows[rows.length-1].querySelectorAll('input[type="number"]');if(ins[0]){ins[0].value=v;calcPAM(ins[0]);resultados.push('🩺 PAS: '+v);}} return;
+    }
+    if(c==='pressao diastolica'){
+      const v=textoParaNum(valor);
+      const rows=document.getElementById('vbody').querySelectorAll('tr');
+      if(v&&rows.length){const ins=rows[rows.length-1].querySelectorAll('input[type="number"]');if(ins[1]){ins[1].value=v;calcPAM(ins[1]);resultados.push('🩺 PAD: '+v);}} return;
+    }
 
     // Sinais vitais
     if(c==='pressao'||c==='pressao arterial'){
